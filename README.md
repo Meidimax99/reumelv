@@ -54,10 +54,46 @@ After implementing the feature, all the changes need to be brought into the mast
 One way to do this might be to change to the master branch and merge the feature branch into the master branch.
 This will create a merge commit every time, polluting the history of the master branch with the superfluous merge commits. 
 
-This might be avoided by rebasing. One would rebase his feature branch onto the current stage of the master branch, which simply reapplies the changes recorded in the commits on the newer state of the master branch. This might lead to conflicts as merging does, but those conflict will be resolved commit per commit and not with all changes of the feature branch.
+This might be avoided by rebasing.
+
+### Rebasing
+
+Once you are finished implementing your feature, there might already be some new changes to the master branch. If thats the case, your local branch and the remote master are diverging by some amount of commits.  
+This might look like this:
+```
+          A---B---C feature
+         /
+    D---E---F---G master
+```
+Rebasing the feature branch onto the curret state of the master-branch will re-apply the commits of the feature-branch on top of the newest commits of the master-branch.  
+If done successfully, the local state of the feature branch will look like this:
+```
+                  A'---B'---C' feature
+                 /
+    D---E---F---G master
+```
+But of course some changes introduced in the commits of the feature-branch might conflict with the diverging conflicts of the master-branch. If that is the case, you will have to resolve the conflicts and recommit the changes for that specific commit.  
+The interactive rebasing mode is pretty useful for that.
+
+### Pushing the rebased branch to the remote repository
+
+Now if you try to push your rebased branch that is ready if integration into the master to the remote feature-branch, you will notice that git complains about your local branch and the remote branch having diverged.  
+This is due to the reason, that we created a whole new set of commits when we rebased the feature-branch on top of the most recent state of the master branch.  
+So from the perspective of the VCS, this new state of the local branch is completeley different from the remote state, because the history of the local branch noew includes the newer commits of the master-branch, which are not part of the remote branches history.
+
+But, working with GitLab, we need to get our local state to the remote repository in order the merge the changes into the master branch using a *merge request*.  
+So how do we deal with that?
+
+One way would be to force the current, rebased state of the feature branch onto the remote feature-branch. But this is quite destructive and might overwrite recent changes from other programmers.
+
+The "cleaner" way would be to create an additional branch before rebasing and then rebase using this new "integration"-branch (naming convention: "integration/"\<original branch name\>).
+
+Once rebase, this new branch can then be pushed to the remote repository without any conflicts, since the branch did not exist there yet.
+
+We can then continue with the *merge request* to finally introduce the changes into the master branch.
 
 ### Merge Request
-The final step is to create a merge request. This should only happen if the feature is well-tested, which in our case probably means testing the feature by hand.
+The final step is to create a *merge request*. This should only happen if the feature is well-tested, which in our case probably means testing the feature by hand.
 
 First, you need to push the branch to the remote repository. From there you can create a merge request into the master branch.
 
@@ -68,9 +104,6 @@ The given merge options can in most cases stay ticked.
 Especially the squashing of the commits is quite useful:
 It squashes all commits of the feature branch together into one with the name of the merge request. This results in a quite nice commit history, consisting of one commit for each issue/feature.
 
-### Integration Branch?
-Previously the usage of a integration branch was used, but those are typically used to combine multiple feature branches together to be then tested in combination and integrated as one into the master branch.
-That is not necessary for our project and really only makes sense for larger-scale projects
 #
 
 ## Short overview of useful Git Commands
