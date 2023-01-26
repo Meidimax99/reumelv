@@ -7,6 +7,7 @@ use crate::{
         memory_mapping::MemoryMapping,
         uart::{self},
     },
+    ipc::copy_stack,
     scheduler,
     sys::scheduler::scheduler,
 };
@@ -18,7 +19,9 @@ fn syscall_from(number: usize) -> SysCall {
         SysCall::Yield,
         SysCall::Exit,
         SysCall::TaskNew,
-        SysCall::LthreadExRegs
+        SysCall::LthreadExRegs,
+        SysCall::IpcSend,
+        SysCall::IPCReceiver
     );
     panic!("Illegal syscall: {}", number);
 }
@@ -31,6 +34,7 @@ pub unsafe fn syscall(number: usize, _param_0: usize, _param_1: usize) -> Option
             return char;
         }
         SysCall::Print => {
+            sys_print_string(copy_stack(scheduler::cur(), 20).as_ptr() as usize, 20);
             sys_print_string(_param_0, _param_1);
             scheduler::cur().increment_mepc();
             return None;
@@ -53,6 +57,12 @@ pub unsafe fn syscall(number: usize, _param_0: usize, _param_1: usize) -> Option
             scheduler::cur().increment_mepc();
             return None;
         }
+        SysCall::IpcSend => {
+            return None;
+        }
+        SysCall::IPCReceiver => {
+            return None;
+        }
     }
 }
 
@@ -68,7 +78,7 @@ unsafe fn sys_get_char() -> Option<usize> {
     return Some(uart::read_char() as usize);
 }
 
-unsafe fn sys_print_string(str_ptr: usize, size: usize) {
+pub unsafe fn sys_print_string(str_ptr: usize, size: usize) {
     // cast to u8 to increment Option<usize> to char pointer
     let mut str_ptr = str_ptr.clone();
     for _ in 0..size {

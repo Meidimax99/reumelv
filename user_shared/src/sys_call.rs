@@ -52,3 +52,9 @@ pub fn task_new(mepc: usize) -> usize {
         return system_call(SysCall::TaskNew, mepc, 0);
     }
 }
+
+pub fn sys_ipc_send(PID: usize, lenght: usize) {
+    unsafe {
+        system_call(SysCall::IpcSend, PID, lenght);
+    }
+}
