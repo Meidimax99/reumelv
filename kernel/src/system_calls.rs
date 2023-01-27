@@ -1,3 +1,4 @@
+use crate::{ipc::print_msg, scheduler::*, sys::process::Proc};
 pub use core::arch::asm;
 use core::ops::Add;
 use riscv_utils::*;
@@ -7,7 +8,6 @@ use crate::{
         memory_mapping::MemoryMapping,
         uart::{self},
     },
-    ipc::copy_stack,
     scheduler,
     sys::scheduler::scheduler,
 };
@@ -34,7 +34,6 @@ pub unsafe fn syscall(number: usize, _param_0: usize, _param_1: usize) -> Option
             return char;
         }
         SysCall::Print => {
-            sys_print_string(copy_stack(scheduler::cur(), 20).as_ptr() as usize, 20);
             sys_print_string(_param_0, _param_1);
             scheduler::cur().increment_mepc();
             return None;
@@ -58,6 +57,7 @@ pub unsafe fn syscall(number: usize, _param_0: usize, _param_1: usize) -> Option
             return None;
         }
         SysCall::IpcSend => {
+            sys_IpcSend(_param_0, _param_1);
             return None;
         }
         SysCall::IPCReceiver => {
@@ -91,4 +91,14 @@ pub unsafe fn sys_print_string(str_ptr: usize, size: usize) {
 
 unsafe fn sys_yield() {
     scheduler();
+}
+
+unsafe fn sys_IpcSend(receiver_id: usize, lenght: usize) {
+    // First we must find the receiver and the sending Process
+    unsafe {
+        let receiver_prog: Proc = get_Process(receiver_id);
+        let sender_prog: Proc = cur();
+
+        print_msg(sender_prog, lenght);
+    }
 }

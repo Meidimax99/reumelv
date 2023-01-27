@@ -46,7 +46,7 @@ unsafe fn init_procs() {
 // See also [get_inact_proc].
 pub fn task_new(mepc: usize) -> usize {
     let info = get_inact_proc();
-    if info == (0,0) {
+    if info == (0, 0) {
         return 0;
     }
     unsafe {
@@ -143,4 +143,16 @@ fn switch(prog: Proc) {
             }
         }
     }
+}
+
+pub unsafe fn get_Process(process_id: usize) -> Proc {
+    for i in 0..PROCS.len() {
+        if let Some(process) = &mut PROCS[i] {
+            return Proc {
+                idx: CUR_PROG_IDX,
+                id: process.id,
+            };
+        }
+    }
+    panic!("The Process dose not exist!");
 }

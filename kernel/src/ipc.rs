@@ -4,6 +4,11 @@ use crate::hardware::{
     memory_mapping::MemoryMapping,
 };
 use crate::sys::{process::Proc as Prog, state::Reason};
+use crate::{
+    hardware::uart::print_char,
+    macros::print,
+    scheduler::{self, *},
+};
 static mut ipc: [u64; 64] = [0; 64];
 
 // every word is received Process
@@ -43,4 +48,18 @@ pub fn copy_stack(process: Prog, length: usize) -> [usize; 20] {
         }
     }
     return stack_information;
+}
+
+pub fn print_msg(sender_prog: Prog, length: usize) {
+    // s0 = sp+6*8
+    let sender_sp = sender_prog._sp();
+    let sender_s0 = sender_sp + 6 * 8;
+    let mut tmp: char;
+
+    for i in 0..length {
+        unsafe {
+            tmp = MemoryMapping::new(sender_s0 + i).read();
+            print_char(tmp);
+        }
+    }
 }
