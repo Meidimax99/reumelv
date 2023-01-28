@@ -18,6 +18,11 @@ impl Stack {
     pub fn a7(&self) -> usize {
         self.1[16]
     }
+
+    pub fn s0(&self) -> usize {
+        self.1[7]
+    }
+
     /// Sets the return value.
     pub fn set_ret(&mut self, ret: usize) {
         self.1[9] = ret;

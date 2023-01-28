@@ -9,6 +9,17 @@ use crate::{
     macros::print,
     scheduler::{self, *},
 };
+use crate::{
+    hardware::{
+        binary_struct::{self, BinaryOperations},
+        memory_mapping::MemoryMapping,
+        stack::Stack,
+        uart::{self, print_char},
+    },
+    macros::print,
+    scheduler::{self, *},
+    user_prog,
+};
 static mut ipc: [u64; 64] = [0; 64];
 
 // every word is received Process
@@ -50,8 +61,9 @@ pub fn copy_stack(process: Prog, length: usize) -> [usize; 20] {
     return stack_information;
 }
 
-pub fn print_msg(sender_prog: Prog, length: usize) {
+pub fn print_msg(sender_prog: Prog, receiver_id: usize, length: usize) {
     // s0 = sp+6*8
+    /*
     let sender_sp = sender_prog._sp();
     let sender_s0 = sender_sp + 6 * 8;
     let mut tmp: char;
@@ -61,5 +73,14 @@ pub fn print_msg(sender_prog: Prog, length: usize) {
             tmp = MemoryMapping::new(sender_s0 + i).read();
             print_char(tmp);
         }
+    }*/
+
+    unsafe {
+        let mut cur_stack: Stack = Stack::new(cur()._sp());
+        let msg = cur_stack.s0();
+        //uart::print_char(msgas u64 as u8 as char)
+        // write it back
+        let receiver = scheduler::get_Process(receiver_id);
+        let next_stack = Stack::new(receiver._sp());
     }
 }

@@ -99,6 +99,6 @@ unsafe fn sys_IpcSend(receiver_id: usize, lenght: usize) {
         let receiver_prog: Proc = get_Process(receiver_id);
         let sender_prog: Proc = cur();
 
-        print_msg(sender_prog, lenght);
+        print_msg(sender_prog, receiver_id, lenght);
     }
 }
