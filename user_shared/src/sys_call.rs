@@ -58,3 +58,11 @@ pub fn sys_ipc_send(PID: usize, lenght: usize) {
         system_call(SysCall::IpcSend, PID, lenght);
     }
 }
+
+pub fn sys_ipc_receive() -> usize {
+    unsafe {
+        let output;
+        riscv::read_function_reg!("s0" => output);
+        return output;
+    }
+}

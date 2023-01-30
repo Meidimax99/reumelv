@@ -76,11 +76,14 @@ pub fn print_msg(sender_prog: Prog, receiver_id: usize, length: usize) {
     }*/
 
     unsafe {
-        let mut cur_stack: Stack = Stack::new(cur()._sp());
+        let cur_stack: Stack = Stack::new(cur()._sp());
         let msg = cur_stack.s0();
-        //uart::print_char(msgas u64 as u8 as char)
+        //uart::print_char(msg as u8 as char);
         // write it back
         let receiver = scheduler::get_Process(receiver_id);
-        let next_stack = Stack::new(receiver._sp());
+        let mut next_stack: Stack = Stack::new(receiver._sp());
+
+        next_stack.write_s0(msg);
+        next_stack.write();
     }
 }
