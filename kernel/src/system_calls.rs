@@ -1,4 +1,5 @@
-use crate::{ipc::print_msg, scheduler::*, sys::process::Proc};
+use crate::scheduler::*;
+use crate::sys::process::Proc;
 pub use core::arch::asm;
 use core::ops::Add;
 use riscv_utils::*;
@@ -99,6 +100,6 @@ unsafe fn sys_IpcSend(receiver_id: usize, lenght: usize) {
         let receiver_prog: Proc = get_Process(receiver_id);
         let sender_prog: Proc = cur();
 
-        print_msg(sender_prog, receiver_id, lenght);
+        //print_msg(sender_prog,receiver_id,lenght);
     }
 }

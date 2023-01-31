@@ -1,55 +1,113 @@
-use crate::hardware::binary_struct::*;
-use crate::hardware::{
-    binary_struct::{self, BinaryOperations},
-    memory_mapping::MemoryMapping,
-};
-use crate::sys::{process::Proc as Prog, state::Reason};
 use crate::{
-    hardware::uart::print_char,
-    macros::print,
-    scheduler::{self, *},
-};
-use crate::{
-    hardware::{
-        binary_struct::{self, BinaryOperations},
-        memory_mapping::MemoryMapping,
-        stack::Stack,
-        uart::{self, print_char},
-    },
-    macros::print,
-    scheduler::{self, *},
-    user_prog,
+    hardware::{binary_struct::BinaryStruct, memory_mapping::MemoryMapping, stack::Stack},
+    scheduler::*,
 };
 static mut ipc: [u64; 64] = [0; 64];
 
 // every word is received Process
 
+// IPC Table
+
+static mut ipc_sending_table: [u64; 64] = [0; 64];
+
 // lock setzen
-pub fn set_ipc_lock(prog: Prog, receiver: usize) {
-    prog.set_blocked(Reason::IPC, receiver); // receiver is a Prog ID
-}
-// lock auflösen
-pub fn clear_ipc_lock(sending_Prog: Prog, receiving_Prog: Prog) {
-    if sending_Prog.is_blocked_of(Reason::IPC, receiving_Prog.id() as usize)
-        == (true, receiving_Prog.id() as usize)
-    {
-        // if the received Prog read the message, the sending Prog change to ready
-        sending_Prog.set_rdy();
-        // bit oben lösen TODO
+pub fn set_sending_ipc_lock(sending_Prog: Prog, receiving_Prog: Prog) {
+    unsafe {
+        // setzen in unserer table unser bit auf den receiver Process
+        let mut word = BinaryStruct::from(ipc_sending_table[receiving_Prog.id() as usize]);
+        word.at(sending_Prog.id() as usize, true);
+        ipc_sending_table[receiving_Prog.id() as usize] = word.get();
+        sending_Prog.set_blocked(Reason::SendingIpc, receiving_Prog.id() as usize);
     }
 }
+
+pub fn set_receiver_ipc_lock(receiving_Prog: Prog, sending_Prog: Prog) {
+    receiving_Prog.set_blocked(Reason::ReceiveIpc, sending_Prog.id() as usize);
+}
+
+// lock auflösen
+pub fn clear_ipc_lock(sending_Prog: Prog, receiving_Prog: Prog, reason: Reason) {
+    unsafe {
+        let word = ipc_sending_table[receiving_Prog.id() as usize];
+        let mut bit = BinaryStruct::from(word);
+        if bit.is_set(sending_Prog.id() as usize) {
+            if receiving_Prog
+                .is_blocked_of(Reason::ReceiveIpc, sending_Prog.id() as usize)
+                .0
+            {
+                stack_copy();
+                bit.at(sending_Prog.id() as usize, false);
+                ipc_sending_table[receiving_Prog.id() as usize] = bit.get();
+                sending_Prog.set_rdy();
+                receiving_Prog.set_rdy();
+            }
+        }
+    }
+}
+
+pub fn stack_copy() {
+    // TODO
+}
+
 // send
 pub fn send(sending_Prog: Prog, receiving_Prog: Prog, lenght: usize) {
     unsafe {
-        set_ipc_lock(sending_Prog, receiving_Prog.id() as usize);
-        let mut word: BinaryStruct<u64> = BinaryStruct::from(ipc[receiving_Prog.id() as usize]); // take old receiver word
-        BinaryStruct::at(&mut word, receiving_Prog.id() as usize, true); // set new sending bit
-        ipc[receiving_Prog.id() as usize] = word.get() as u64;
+        let cur_stack: Stack = Stack::new(sending_Prog._sp());
+        let msg = cur_stack.s0();
+
+        /*
+
+        if ipc_receiving_table[receiving_Prog.id() as usize] == 0{
+            // nothing is set so the sending_Prog must wait
+
+        }else {
+            // if the word is not 0, we must look if the
+        }
+        // look if receiving Prog want something
+
+        */
+
+        // write it back
+        /*
+        let mut next_stack: Stack = Stack::new(receiving_Prog._sp());
+
+        next_stack.write_s0(msg);
+        next_stack.write();
+        */
+
+        unsafe {
+            let word = ipc_sending_table[receiving_Prog.id() as usize];
+            let mut bit = BinaryStruct::from(word);
+            if receiving_Prog
+                .is_blocked_of(Reason::ReceiveIpc, sending_Prog.id() as usize)
+                .0
+            {
+                // sending after receive
+                sending_Prog.is_blocked(Reason::SendingIpc, receiving_Prog.id() as usize);
+                clear_ipc_lock(sending_Prog, receiving_Prog, Reason::ReceiveIpc);
+            } else {
+                // sending for receive
+                sending_Prog.is_blocked(Reason::SendingIpc, receiving_Prog.id() as usize);
+            }
+        }
     }
 }
-// receive
-pub fn receive() {}
 
+// receive
+pub fn receive(receiving_Prog: Prog, sending_Prog: Prog) {
+    unsafe {
+        let word = ipc_sending_table[receiving_Prog.id() as usize];
+        let mut bit = BinaryStruct::from(word);
+        if bit.is_set(sending_Prog.id() as usize) {
+            // receive after sending
+            receiving_Prog.is_blocked(Reason::ReceiveIpc, sending_Prog.id() as usize);
+            clear_ipc_lock(sending_Prog, receiving_Prog, Reason::ReceiveIpc);
+        } else {
+            // receive for sending
+            receiving_Prog.is_blocked(Reason::ReceiveIpc, sending_Prog.id() as usize);
+        }
+    }
+}
 pub fn copy_stack(process: Prog, length: usize) -> [usize; 20] {
     let context_end = process._sp();
     let mut stack_information: [usize; 20] = [0; 20];
@@ -59,31 +117,4 @@ pub fn copy_stack(process: Prog, length: usize) -> [usize; 20] {
         }
     }
     return stack_information;
-}
-
-pub fn print_msg(sender_prog: Prog, receiver_id: usize, length: usize) {
-    // s0 = sp+6*8
-    /*
-    let sender_sp = sender_prog._sp();
-    let sender_s0 = sender_sp + 6 * 8;
-    let mut tmp: char;
-
-    for i in 0..length {
-        unsafe {
-            tmp = MemoryMapping::new(sender_s0 + i).read();
-            print_char(tmp);
-        }
-    }*/
-
-    unsafe {
-        let cur_stack: Stack = Stack::new(cur()._sp());
-        let msg = cur_stack.s0();
-        //uart::print_char(msg as u8 as char);
-        // write it back
-        let receiver = scheduler::get_Process(receiver_id);
-        let mut next_stack: Stack = Stack::new(receiver._sp());
-
-        next_stack.write_s0(msg);
-        next_stack.write();
-    }
 }
