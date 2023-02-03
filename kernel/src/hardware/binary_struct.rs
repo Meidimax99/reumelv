@@ -141,32 +141,6 @@ pub trait BinaryOperations {
     fn into_u8(self) -> u8;
 }
 
-impl BinaryOperations for u8 {
-    fn bit_size() -> usize {
-        u8::BITS as usize
-    }
-    fn one() -> Self {
-        1
-    }
-    fn zero() -> Self {
-        0
-    }
-    fn inverse(self) -> Self {
-        !self
-    }
-    fn from(data: usize) -> Self {
-        data as Self
-    }
-
-    fn ten() -> Self {
-        10
-    }
-
-    fn into_u8(self) -> u8 {
-        self as u8
-    }
-}
-
 /// Types implementing the MaxDigits trait need to implement a function max_digits().
 /// This max_digits function returns a byte slice with the length of max_digits bytes.
 /// The length is staticial given during the implementation of the trait for the specific type.
@@ -179,83 +153,36 @@ impl MaxDigits<20> for usize {
     }
 }
 
-impl BinaryOperations for u64 {
-    fn bit_size() -> usize {
-        u64::BITS as usize
-    }
-    fn one() -> Self {
-        1
-    }
-    fn zero() -> Self {
-        0
-    }
-    fn inverse(self) -> Self {
-        !self
-    }
+binary_operations!(usize, u8, u32, u64);
+/// A simple macro to create [`BinaryOperations`] for numerical primitive types. Other types are not supported but maybe added manually.
+macro_rules! binary_operations {
+    ($($type:ty),+) => {
+        $(impl BinaryOperations for $type {
+            fn bit_size() -> usize {
+                <$type>::BITS as usize
+            }
+            fn one() -> Self {
+                1
+            }
+            fn zero() -> Self {
+                0
+            }
+            fn inverse(self) -> Self {
+                !self
+            }
 
-    fn from(data: usize) -> Self {
-        data as Self
-    }
+            fn from(data: usize) -> Self {
+                data as Self
+            }
 
-    fn ten() -> Self {
-        10
-    }
+            fn ten() -> Self {
+                10
+            }
 
-    fn into_u8(self) -> u8 {
-        self as u8
-    }
+            fn into_u8(self) -> u8 {
+                self as u8
+            }
+        })+
+    };
 }
-
-impl BinaryOperations for usize {
-    fn bit_size() -> usize {
-        u64::BITS as usize
-    }
-    fn one() -> Self {
-        1
-    }
-    fn zero() -> Self {
-        0
-    }
-    fn inverse(self) -> Self {
-        !self
-    }
-
-    fn from(data: usize) -> Self {
-        data as Self
-    }
-
-    fn ten() -> Self {
-        10
-    }
-
-    fn into_u8(self) -> u8 {
-        self as u8
-    }
-}
-
-impl BinaryOperations for u32 {
-    fn bit_size() -> usize {
-        u32::BITS as usize
-    }
-    fn one() -> Self {
-        1
-    }
-    fn zero() -> Self {
-        0
-    }
-    fn inverse(self) -> Self {
-        !self
-    }
-
-    fn from(data: usize) -> Self {
-        data as Self
-    }
-
-    fn ten() -> Self {
-        10
-    }
-
-    fn into_u8(self) -> u8 {
-        self as u8
-    }
-}
+use binary_operations;
