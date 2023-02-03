@@ -1,17 +1,13 @@
-use crate::scheduler::*;
-use crate::sys::process::Proc;
+use crate::hardware::{
+    memory_mapping::MemoryMapping,
+    uart::{self},
+};
+use crate::ipc::*;
+use crate::scheduler::{self, get_process, Prog};
+use crate::{ipc::set_sending_ipc_block, scheduler::*};
 pub use core::arch::asm;
 use core::ops::Add;
 use riscv_utils::*;
-
-use crate::{
-    hardware::{
-        memory_mapping::MemoryMapping,
-        uart::{self},
-    },
-    scheduler,
-    sys::scheduler::scheduler,
-};
 
 fn syscall_from(number: usize) -> SysCall {
     crate::enum_matching!(
@@ -22,7 +18,7 @@ fn syscall_from(number: usize) -> SysCall {
         SysCall::TaskNew,
         SysCall::LthreadExRegs,
         SysCall::IpcSend,
-        SysCall::IPCReceiver
+        SysCall::IpcReceiver
     );
     panic!("Illegal syscall: {}", number);
 }
@@ -58,10 +54,11 @@ pub unsafe fn syscall(number: usize, _param_0: usize, _param_1: usize) -> Option
             return None;
         }
         SysCall::IpcSend => {
-            sys_IpcSend(_param_0, _param_1);
+            sys_ipc_send(_param_0, _param_1);
             return None;
         }
-        SysCall::IPCReceiver => {
+        SysCall::IpcReceiver => {
+            sys_ipc_receive(_param_0, _param_1);
             return None;
         }
     }
@@ -94,12 +91,16 @@ unsafe fn sys_yield() {
     scheduler();
 }
 
-unsafe fn sys_IpcSend(receiver_id: usize, lenght: usize) {
-    // First we must find the receiver and the sending Process
-    unsafe {
-        let receiver_prog: Proc = get_Process(receiver_id);
-        let sender_prog: Proc = cur();
+unsafe fn sys_ipc_send(receiver_id: usize, _length: usize) {
+    let receiver_prog: Prog = get_process(receiver_id);
+    let sender_prog: Prog = cur();
+    set_sending_ipc_block(sender_prog, receiver_id);
+    try_exchange(sender_prog, receiver_prog);
+}
 
-        //print_msg(sender_prog,receiver_id,lenght);
-    }
+unsafe fn sys_ipc_receive(sender_id: usize, _length: usize) {
+    let sender_prog: Prog = get_process(sender_id);
+    let receiver_prog: Prog = cur();
+    set_receiver_ipc_block(receiver_prog, sender_id);
+    try_exchange(sender_prog, receiver_prog);
 }

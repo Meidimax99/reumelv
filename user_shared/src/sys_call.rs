@@ -2,7 +2,7 @@ use core::arch::asm;
 use riscv_utils as riscv;
 use riscv_utils::SysCall;
 
-/// Funktion to transmit the µ-kernel the type of the syscall, and two parameter.
+/// Function to transmit the µ-kernel the type of the syscall, and two parameter.
 /// It use the register a7, a0 and a1.
 /// Switches to the kernel with an ecall
 ///
@@ -62,6 +62,7 @@ pub fn sys_ipc_send(PID: usize, lenght: usize) {
 pub fn sys_ipc_receive() -> usize {
     unsafe {
         let output;
+        system_call(SysCall::IpcReceiver, pid, length);
         riscv::read_function_reg!("s0" => output);
         return output;
     }
