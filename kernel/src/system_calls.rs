@@ -9,7 +9,7 @@ pub use core::arch::asm;
 use core::ops::Add;
 use riscv_utils::*;
 
-fn syscall_from(number: usize) -> SysCall {
+pub fn syscall_from(number: usize) -> SysCall {
     crate::enum_matching!(
         number: SysCall::GetChar,
         SysCall::Print,
@@ -18,7 +18,8 @@ fn syscall_from(number: usize) -> SysCall {
         SysCall::TaskNew,
         SysCall::LthreadExRegs,
         SysCall::IpcSend,
-        SysCall::IpcReceiver
+        SysCall::IpcReceiver,
+        SysCall::IpcReceiverAll
     );
     panic!("Illegal syscall: {}", number);
 }
@@ -60,6 +61,11 @@ pub unsafe fn syscall(number: usize, _param_0: usize, _param_1: usize) -> Option
         }
         SysCall::IpcReceiver => {
             sys_ipc_receive(_param_0, _param_1);
+            scheduler::cur().increment_mepc();
+            return None;
+        }
+        SysCall::IpcReceiverAll => {
+            sys_ipc_receive_all(_param_0);
             scheduler::cur().increment_mepc();
             return None;
         }
@@ -105,4 +111,10 @@ unsafe fn sys_ipc_receive(sender_id: usize, _length: usize) {
     let receiver_prog: Prog = cur();
     set_receiver_ipc_block(receiver_prog, sender_id);
     try_exchange(sender_prog, receiver_prog);
+}
+
+unsafe fn sys_ipc_receive_all(_length: usize) {
+    let receiver_prog: Prog = cur();
+    set_receiver_ipc_block_all(receiver_prog);
+    try_exchange_all(receiver_prog);
 }
