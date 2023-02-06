@@ -1,6 +1,7 @@
 [package]
 #TODO change authors
-authors = ["Timo Renk <timo.renk@stud.uni-bamberg.de>, Fabian Adam (fabian-david.adam@stud.uni-bamberg.de), Leonhard Kohn (leonhard.kohn@stud.uni-bamberg.de), Tobias Treuheit (tobias-niklas.treuheit@stud.uni-bamberg.de), Max Meidinger (max_meidinger@stud.uni-bamberg.de)"]
-edition = "2023"
-name = "R5"
-version = "0.0.2"
+authors = ["Timo Renk <timo.renk@stud.uni-bamberg.de>"]
+edition = "2021"
+name = "riscv_utils"
+version = "0.0.1"
+
