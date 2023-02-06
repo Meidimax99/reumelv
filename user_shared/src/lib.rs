@@ -1,10 +1,7 @@
 #![no_std]
 #![allow(dead_code)]
 
-
-
 use riscv_utils;
-
 
 pub mod asm;
 pub mod panic_handler;
@@ -13,15 +10,15 @@ pub mod traits;
 #[macro_use]
 pub mod macros;
 
-pub fn write_ipc(information:usize){
-    // we want to write in s0 
-    unsafe{
+pub fn write_ipc(information: usize) {
+    // we want to write in s0
+    unsafe {
         riscv_utils::write_function_reg!(
             information => "s0"
         );
     }
 }
 
-pub fn get_length(){
+pub fn get_length() {
     // TODO
 }

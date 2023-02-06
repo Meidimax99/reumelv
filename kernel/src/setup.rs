@@ -44,6 +44,4 @@ pub unsafe fn setup() {
     mie.write_register_entry(MIE_MTIE);
     mie.write_register_entry(MIE_MEIE);
     write_machine_reg!(mie.get() => "mie");
-
-    
 }

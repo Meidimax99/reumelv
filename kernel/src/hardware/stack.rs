@@ -23,7 +23,7 @@ impl Stack {
         self.1[7]
     }
 
-    pub fn write_s0(&mut self, value:usize) {
+    pub fn write_s0(&mut self, value: usize) {
         self.1[7] = value;
     }
     /// Sets the return value.

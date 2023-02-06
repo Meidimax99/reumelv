@@ -6,4 +6,4 @@ name = "user_shared"
 version = "0.1.0"
 
 [dependencies]
-riscv_utils = {path = "../riscv"}
+riscv_utils = {path = "../riscv"} 

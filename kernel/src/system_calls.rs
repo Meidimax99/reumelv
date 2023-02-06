@@ -55,10 +55,12 @@ pub unsafe fn syscall(number: usize, _param_0: usize, _param_1: usize) -> Option
         }
         SysCall::IpcSend => {
             sys_ipc_send(_param_0, _param_1);
+            scheduler::cur().increment_mepc();
             return None;
         }
         SysCall::IpcReceiver => {
             sys_ipc_receive(_param_0, _param_1);
+            scheduler::cur().increment_mepc();
             return None;
         }
     }
