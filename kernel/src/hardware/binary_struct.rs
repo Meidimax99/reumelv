@@ -36,10 +36,10 @@ where
 {
     /// Checks for a bit value of the binary struct at the given location [bit].
     ///
-    /// There are three possiblities of how the method behaves:
+    /// There are three possibilities of how the method behaves:
     /// - the value for  [bit] is 1, the true is returned
     /// - the value for [bit] is 0, the false is returned
-    /// - the [bit] is out of the scope for the binary struct T, the fales is returned
+    /// - the [bit] is out of the scope for the binary struct T, the false is returned
     ///
     /// For example:
     /// let BinaryStruct byte = BinaryStruct<u8>;
@@ -106,7 +106,7 @@ where
     /// The main use of this method is to change the type of [bit] from [`usize`] to BinaryStruct of the type T.
     ///  
     /// "None" will be returned, if size of the BinaryStruct T is smaller than the value [bit].
-    /// This means the value of [bit] is to large to be safed in the binary size of T.
+    /// This means the value of [bit] is to large to be saved in the binary size of T.
     ///
     fn transform_bit(bit: usize) -> Option<T> {
         if bit >= T::bit_size() {
