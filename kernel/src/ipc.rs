@@ -9,7 +9,6 @@ static mut ipc: [u64; 64] = [0; 64];
 
 // every word is received Process
 // IPC Table
-
 static mut IPC_TABLE: [u64; 64] = [0; 64];
 
 pub unsafe fn try_exchange_all(receiving_prog: Prog) {
@@ -24,11 +23,7 @@ pub unsafe fn try_exchange_all(receiving_prog: Prog) {
     let bit = BinaryStruct::from(word);
     for id in 0..63 {
         if bit.is_set(id) {
-            let sending_proc = get_process(id);
-            receiving_prog.set_rdy();
-            set_receiver_ipc_block(receiving_prog, id);
-            send_ipc(sending_proc, receiving_prog);
-            clear_ipc_block(sending_proc, receiving_prog);
+            try_exchange(get_process(id), receiving_prog);
             return;
         }
     }
@@ -36,23 +31,25 @@ pub unsafe fn try_exchange_all(receiving_prog: Prog) {
 }
 
 pub unsafe fn try_exchange(sending_prog: Prog, receiving_prog: Prog) {
-    if receiving_prog.is_blocked_of(Reason::ReceiveIpcAll, 0).0 {
-        receiving_prog.set_rdy();
-        receiving_prog.is_blocked(Reason::ReceiveIpc, sending_prog.id() as usize);
-    }
     let sender_id = sending_prog.id() as usize;
     let receiver_id = receiving_prog.id() as usize;
     // word is one line from the ipc_table
     let word = IPC_TABLE[receiving_prog.id() as usize];
     // bit is a binary struct from word
     let bit = BinaryStruct::from(word);
-    if sending_prog
+    // is the sending process and the receiver process valid
+
+    let sending_block = sending_prog
         .is_blocked_of(Reason::SendingIpc, receiver_id)
-        .0
-        && receiving_prog
-            .is_blocked_of(Reason::ReceiveIpc, sender_id)
-            .0
-        && bit.is_set(sending_prog.id() as usize)
+        .0;
+    let receiving_block = receiving_prog
+        .is_blocked_of(Reason::ReceiveIpc, sender_id)
+        .0;
+    let receiving_block_all = receiving_prog.is_blocked_of(Reason::ReceiveIpcAll, 0).0;
+    let sender_bit_set = bit.is_set(sending_prog.id() as usize);
+
+    if (sending_block && receiving_block && sender_bit_set)
+        || (sending_block && receiving_block_all && sender_bit_set)
     {
         send_ipc(sending_prog, receiving_prog);
         clear_ipc_block(sending_prog, receiving_prog);
