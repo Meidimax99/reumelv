@@ -1,3 +1,5 @@
+use core::fmt::Binary;
+
 include!("sys_call.rs");
 
 /// This trait is for a print with other datatypes. It works with str, char and usize.
@@ -39,22 +41,20 @@ impl Print for char {
     }
 }
 
-/// The print for a char is implemented with a system_call.
+/// The print for [usize] is implemented with a system_call.
 /// It transmit a pointer and the length of the array.
 const HEX_SLICE_LENGTH: usize = 18;
 impl Print for usize {
     fn print(&self) {
-        let usize_bytes = core::mem::size_of::<usize>();
-        let mut shift_bits = (usize_bytes * 8 - 4) as i64; // usize_bytes * 8 - 4
-        let write_start = HEX_SLICE_LENGTH - 2 * usize_bytes;
-
+        let slice_length = 2 + (usize::BITS / 4) as usize;
+        let mut shift_bits = (usize::BITS - 4) as i64;
         // creates a array with the beginning "0x"
-        let mut hex_slice: [u8; HEX_SLICE_LENGTH] = [0; HEX_SLICE_LENGTH];
+        let mut hex_slice: [u8; 2 + (usize::BITS / 4) as usize] = [0; 2 + (usize::BITS / 4) as usize];
         hex_slice[0] = '0' as u8;
         hex_slice[1] = 'x' as u8;
         
         // for every number convert it in hex
-        for j in write_start..HEX_SLICE_LENGTH {
+        for j in 2..slice_length {
             let s: u8;
             // Allocation of the last 4 bits to a variable (one hex number)
             let d = (self >> shift_bits) & 0x0f;
@@ -72,5 +72,11 @@ impl Print for usize {
         unsafe {
             system_call(SysCall::Print, hex_slice.as_ptr() as usize, hex_slice.len());
         }
+    }
+}
+
+impl Print for *const u8 {
+    fn print(&self) {
+        (*self as usize).print();
     }
 }

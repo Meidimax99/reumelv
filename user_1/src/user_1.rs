@@ -2,7 +2,7 @@
 #![no_main]
 
 use sys_call as sys;
-use user_shared::{macros::sys_print, traits::Print, *};
+use user_shared::{macros::sys_print as print, traits::Print, *};
 
 #[no_mangle]
 extern "C" fn main() {
@@ -12,13 +12,15 @@ extern "C" fn main() {
     number.print();
     "\n".print();
     string.print();
-    "\nUser 1 ist fertig\n".print();
-    sys_print!("Macro");
-    sys_print!("786");
+    "User 1 ist fertig\n".print();
+
+    print!("Macro ");
+    print!("786");
+    println!();
     "\n".print();
-    println!("Hello World");
+    println!("Hello World", "Is this printed");
     println!(1024);
-    print!("Finishing\n");
-    print!('c');
+    println!('c');
+    println!(string.as_ptr());
     sys::exit();
 }
