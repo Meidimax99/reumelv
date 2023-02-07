@@ -2,7 +2,7 @@
 #![no_main]
 
 use sys_call as sys;
-use user_shared::{sys_call::*, traits::Print, *};
+use user_shared::{macros::sys_print, sys_call::sys_ipc_send, traits::Print, *};
 
 #[no_mangle]
 extern "C" fn main() {
