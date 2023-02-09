@@ -1,4 +1,3 @@
-//TODO: look at rustdoc book for more advanced docs
 /// A individual bit in a register, `RegisterEntry` contains the position and the values of the bit
 /// # Example
 ///

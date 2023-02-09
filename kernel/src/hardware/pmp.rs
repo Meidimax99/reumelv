@@ -5,9 +5,13 @@ use super::binary_struct::Byte;
 pub unsafe fn init() {
     let pmp_addr_0 = 0x80000000 >> 2; // devices  0x0-0x80000000 >> 2
     let pmp_addr_1 = 0x80100000 >> 2; // kernel
-    let pmp_addr_2 = 0x80200000 >> 2; // user1
-    let pmp_addr_3 = 0x80300000 >> 2; // user2
-    let pmp_addr_4 = 0x80400000 >> 2; // end
+    let pmp_addr_2 = 0x80200000 >> 2; // u1
+    let pmp_addr_3 = 0x80300000 >> 2; // u2
+    let pmp_addr_4 = 0x80400000 >> 2; // u3
+    let pmp_addr_5 = 0x80500000 >> 2; // u4
+    let pmp_addr_6 = 0x80600000 >> 2; // u5
+    let pmp_addr_7 = 0x80700000 >> 2; // u6
+    let pmp_addr_8 = 0x80800000 >> 2; // u7
     let pmpcfg0 = 0;
 
     write_machine_reg!(
@@ -16,6 +20,10 @@ pub unsafe fn init() {
         pmp_addr_2 => "pmpaddr2",
         pmp_addr_3 => "pmpaddr3",
         pmp_addr_4 => "pmpaddr4",
+        pmp_addr_5 => "pmpaddr5",
+        pmp_addr_6 => "pmpaddr6",
+        pmp_addr_7 => "pmpaddr7",
+        pmp_addr_8 => "pmpaddr8",
         pmpcfg0 => "pmpcfg0"
     );
 }

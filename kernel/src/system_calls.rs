@@ -8,6 +8,7 @@ use crate::{
         uart::{self},
     },
     scheduler,
+    sys::scheduler::scheduler,
 };
 
 fn syscall_from(number: usize) -> SysCall {
@@ -15,7 +16,9 @@ fn syscall_from(number: usize) -> SysCall {
         number: SysCall::GetChar,
         SysCall::Print,
         SysCall::Yield,
-        SysCall::Exit
+        SysCall::Exit,
+        SysCall::TaskNew,
+        SysCall::LthreadExRegs
     );
     panic!("Illegal syscall: {}", number);
 }
@@ -23,10 +26,13 @@ fn syscall_from(number: usize) -> SysCall {
 pub unsafe fn syscall(number: usize, _param_0: usize, _param_1: usize) -> Option<usize> {
     match syscall_from(number) {
         SysCall::GetChar => {
-            return sys_get_char();
+            let char = sys_get_char();
+            scheduler::cur().increment_mepc();
+            return char;
         }
         SysCall::Print => {
             sys_print_string(_param_0, _param_1);
+            scheduler::cur().increment_mepc();
             return None;
         }
         SysCall::Exit => {
@@ -38,17 +44,26 @@ pub unsafe fn syscall(number: usize, _param_0: usize, _param_1: usize) -> Option
             sys_yield();
             return None;
         }
+        SysCall::TaskNew => {
+            scheduler::cur().increment_mepc();
+            return task_new(_param_0);
+        }
+        SysCall::LthreadExRegs => {
+            //TODO syscall for creating and switching between threads, needs valid ip and sp, returns current thread id
+            scheduler::cur().increment_mepc();
+            return None;
+        }
     }
 }
 
 unsafe fn exit() {
-    let cur = scheduler::cur();
-    let prog_info = cur.prog_info();
     scheduler::end_prog(scheduler::cur());
-    scheduler::init_prog(prog_info);
     sys_yield();
 }
 
+fn task_new(mepc: usize) -> Option<usize> {
+    return Some(scheduler::task_new(mepc));
+}
 unsafe fn sys_get_char() -> Option<usize> {
     return Some(uart::read_char() as usize);
 }
@@ -65,7 +80,5 @@ unsafe fn sys_print_string(str_ptr: usize, size: usize) {
 }
 
 unsafe fn sys_yield() {
-    let next =
-        scheduler::next().expect("No next user prog for system yield. Idle task not implemented");
-    scheduler::switch(next);
+    scheduler();
 }

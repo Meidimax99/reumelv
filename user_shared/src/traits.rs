@@ -36,7 +36,11 @@ impl Print for char {
         // convert buffer to string slice
         let char_string = self.encode_utf8(&mut slice);
         unsafe {
-            system_call(SysCall::Print, char_string.as_ptr() as usize, char_string.len());
+            system_call(
+                SysCall::Print,
+                char_string.as_ptr() as usize,
+                char_string.len(),
+            );
         }
     }
 }
@@ -49,10 +53,11 @@ impl Print for usize {
         let slice_length = 2 + (usize::BITS / 4) as usize;
         let mut shift_bits = (usize::BITS - 4) as i64;
         // creates a array with the beginning "0x"
-        let mut hex_slice: [u8; 2 + (usize::BITS / 4) as usize] = [0; 2 + (usize::BITS / 4) as usize];
+        let mut hex_slice: [u8; 2 + (usize::BITS / 4) as usize] =
+            [0; 2 + (usize::BITS / 4) as usize];
         hex_slice[0] = '0' as u8;
         hex_slice[1] = 'x' as u8;
-        
+
         // for every number convert it in hex
         for j in 2..slice_length {
             let s: u8;

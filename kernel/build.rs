@@ -4,7 +4,7 @@ fn main() {
     //with the println! macro, cargo can be given specific instructions for different aspects of the build
     //More on that here:
     //https://doc.rust-lang.org/cargo/reference/build-scripts.html
-    
+
     //rustc-link-arg tells cargo to pass custom flags to compiler
     //https://doc.rust-lang.org/cargo/reference/build-scripts.html#rustc-link-arg
     //more specific: rustc-link-arg will pass the -C link-arg=FLAG flag to the compile

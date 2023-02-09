@@ -2,12 +2,12 @@ use core::arch::asm;
 use riscv_utils as riscv;
 use riscv_utils::SysCall;
 
-/// Funktion to transmit the µ-kernel the type of the syscall, and two parameter. 
+/// Funktion to transmit the µ-kernel the type of the syscall, and two parameter.
 /// It use the register a7, a0 and a1.
 /// Switches to the kernel with an ecall
-/// 
+///
 /// The return is the output from the µ-kernel
-/// 
+///
 /// For example:
 /// system_call(SysCall::GetChar, 0, 0);
 unsafe fn system_call(syscall: SysCall, param_0: usize, param_1: usize) -> usize {
@@ -23,8 +23,8 @@ unsafe fn system_call(syscall: SysCall, param_0: usize, param_1: usize) -> usize
     return output;
 }
 
-/// Syscall to get a char from the user. 
-/// It returns a char. 
+/// Syscall to get a char from the user.
+/// It returns a char.
 pub fn get_char() -> Option<char> {
     unsafe {
         let res = system_call(SysCall::GetChar, 0, 0);
@@ -44,5 +44,11 @@ pub fn exit() {
 pub fn sys_yield() {
     unsafe {
         system_call(SysCall::Yield, 0, 0);
+    }
+}
+
+pub fn task_new(mepc: usize) -> usize {
+    unsafe {
+        return system_call(SysCall::TaskNew, mepc, 0);
     }
 }

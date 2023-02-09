@@ -1,8 +1,9 @@
 use crate::hardware::uart;
 use crate::macros::print;
+use crate::sys::dispatcher;
 use crate::{
     hardware::{binary_struct::BinaryStruct, clint, plic, stack::Stack},
-    scheduler,
+    sys::scheduler,
 };
 
 use super::system_calls;
@@ -10,7 +11,7 @@ use riscv_utils::*;
 
 #[no_mangle]
 unsafe extern "C" fn exception_handler(mepc: usize, mcause: usize, sp: usize) -> usize {
-    scheduler::save_cur_prog(mepc, sp);
+    dispatcher::save_cur_prog(mepc, sp);
     let mut mcause = BinaryStruct::from(mcause);
     let interrupt = mcause.is_set(63);
     if interrupt {
@@ -19,7 +20,7 @@ unsafe extern "C" fn exception_handler(mepc: usize, mcause: usize, sp: usize) ->
     } else {
         handle_exception(mcause.get(), mepc, sp);
     }
-    let sp = scheduler::restore_cur_prog();
+    let sp = dispatcher::restore_cur_prog();
     return sp;
 }
 
@@ -27,10 +28,7 @@ unsafe fn handle_interrupt(mcause: usize) {
     match mcause {
         7 => {
             // Timer interrupt
-            let next = scheduler::next();
-            scheduler::switch(
-                next.expect("No available next user prog. Idle task not implemented"),
-            );
+            scheduler::scheduler();
             clint::set_time_cmp();
         }
         11 => {
@@ -67,9 +65,10 @@ unsafe fn handle_exception(mcause: usize, mepc: usize, sp: usize) {
             let mtval: usize;
             read_machine_reg!("mtval" => mtval);
             panic!(
-                "Load access fault in user prog: {:?}, mepc: 0x{:x}, mtval: 0x{:x}",
+                "Load access fault in user prog: {:?}, mepc: 0x{:x}, sp: 0x{:x}, mtval: 0x{:x}",
                 scheduler::cur().id(),
                 mepc,
+                sp,
                 mtval
             );
         }
@@ -86,7 +85,12 @@ unsafe fn handle_exception(mcause: usize, mepc: usize, sp: usize) {
         }
         _ => {
             // Unsupported exception
-            panic!("Unsupported exception with code: {}", mcause);
+            let mtval: usize;
+            read_machine_reg!("mtval" => mtval);
+            panic!(
+                "Unsupported exception with code: {}, mepc: 0x{:x}, sp: 0x{:x}, mtval: 0x{:x}",
+                mcause, mepc, sp, mtval
+            );
         }
     }
 }

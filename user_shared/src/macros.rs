@@ -1,6 +1,7 @@
-/// This macro initiates a [`kernel::src::syscall`] to print something via the uart.
-/// The input can be any expression. 
-/// However, the return type of the expression must implement the [Print](crate::traits::Print) trait.
+/// This macro initiates a syscall to print something via the [uart].
+/// The input can be any expression.
+/// However, the type of the expression must implement the [Print] trait.
+/// The Print trait is defined in '[user_shared/traits.rs]'
 #[allow(unused)]
 #[macro_export]
 macro_rules! sys_print {
