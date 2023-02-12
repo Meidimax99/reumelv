@@ -3,5 +3,5 @@ pub mod clint;
 pub mod memory_mapping;
 pub mod plic;
 pub mod pmp;
-pub mod stack;
+pub mod pcb;
 pub mod uart;

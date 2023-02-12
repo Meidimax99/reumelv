@@ -1,17 +1,37 @@
 #![no_std]
 #![no_main]
 
-use sys_call as sys;
-use user_shared::{macros::sys_print, sys_call::sys_ipc_send, traits::Print, *};
+use user_shared::{
+    message::*,
+    sys_call::{sys_ipc_receive_all, sys_ipc_send},
+    traits::Print,
+};
 
+const OUT_FMT: &str = "\n[Process 0] ";
+const REC: &str = "Receive:\t";
+const SND: &str = "Send:\t";
+
+//TODO IPC length?
 #[no_mangle]
 extern "C" fn main() {
-    let char = 'y';
-    write_ipc(char as usize);
-    sys_ipc_send(1, 8);
-    write_ipc('e' as usize);
-    sys_ipc_send(1, 8);
-    write_ipc('s' as usize);
-    sys_ipc_send(1, 8);
-    sys::exit();
+    let mut value = 0;
+
+    loop {
+        value = value + 1;
+        let msg = Message::from_generic(value);
+        msg.write();
+
+        OUT_FMT.print();
+        SND.print();
+        value.print();
+
+        sys_ipc_send(1, 8);
+        unsafe {
+            value = sys_ipc_receive_all(1, 8).content;
+        }
+
+        OUT_FMT.print();
+        REC.print();
+        value.print();
+    }
 }

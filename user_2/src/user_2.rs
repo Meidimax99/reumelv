@@ -2,24 +2,33 @@
 #![no_main]
 use sys_call as sys;
 use user_shared::{
+    message::*,
     sys_call::{self, *},
     traits::Print,
 };
 
+const OUT_FMT: &str = "\n[Process 1] ";
+const REC: &str = "Receive:\t";
+const SND: &str = "Send:\t";
+
 #[no_mangle]
 extern "C" fn main() {
-    // let msg: char;
-    // msg = sys_ipc_receive_all(0, 8) as u8 as char;
-    // msg.print();
-    // let msg2: char;
-    // msg2 = sys_ipc_receive_all(0, 8) as u8 as char;
-    // msg2.print();
-    loop{
-    let msg3: char;
-    msg3 = sys_ipc_receive_all(0, 8) as u8 as char;
-    msg3.print();
-    //for i in 0..100000000{}
-    }
+    loop {
+        let mut value: usize;
+        unsafe {
+            value = sys_ipc_receive_all(0, 8).content;
+            OUT_FMT.print();
+            REC.print();
+            value.print();
+        }
+        value = value + 1;
+        let msg = Message::from_generic(value);
+        msg.write();
 
-    sys::exit();
+        OUT_FMT.print();
+        SND.print();
+        value.print();
+
+        sys_ipc_send(0, 8);
+    }
 }

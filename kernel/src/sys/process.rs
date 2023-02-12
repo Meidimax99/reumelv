@@ -20,20 +20,29 @@ impl Proc {
             self.id, self.idx
         );
     }
-    pub fn _set_rdy(&self) {
+    pub fn set_rdy(&self) {
         unsafe {
             self.get().state = State::Rdy;
         }
     }
     /// If blocked, returns the reason. Otherwise None.
-    pub fn _is_blocked(&self, reason: Reason) -> bool {
-        unsafe { self.get().state == State::_Blocked(reason) }
+    pub fn is_blocked(&self, reason: Reason, number: usize) -> bool {
+        unsafe { self.get().state == State::Blocked(reason, number) }
     }
-    pub fn _set_blocked(&self, reason: Reason) {
-        unsafe {
-            self.get().state = State::_Blocked(reason);
+    pub fn is_blocked_of(&self, reason: Reason, number: usize) -> (bool, usize) {
+        if self.is_blocked(reason, number) {
+            return (true, number);
+        } else {
+            return (false, 0);
         }
     }
+
+    pub fn set_blocked(&self, reason: Reason, number: usize) {
+        unsafe {
+            self.get().state = State::Blocked(reason, number);
+        }
+    }
+
     pub fn increment_mepc(&self) {
         unsafe {
             self.get().mepc += 4;

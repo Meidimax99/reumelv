@@ -1,13 +1,14 @@
+use riscv_utils::read_machine_reg;
+
+use crate::hardware::binary_struct::BinaryStruct;
+use crate::hardware::clint;
+use crate::hardware::pcb::*;
+use crate::hardware::plic;
 use crate::hardware::uart;
 use crate::macros::print;
 use crate::sys::dispatcher;
+use crate::sys::scheduler;
 use crate::system_calls;
-use crate::{
-    hardware::{binary_struct::BinaryStruct, clint, plic, stack::Stack},
-    sys::scheduler,
-};
-
-use riscv_utils::*;
 
 #[no_mangle]
 unsafe extern "C" fn exception_handler(mepc: usize, mcause: usize, sp: usize) -> usize {
@@ -24,11 +25,12 @@ unsafe extern "C" fn exception_handler(mepc: usize, mcause: usize, sp: usize) ->
     return sp;
 }
 
+//https://people.eecs.berkeley.edu/~krste/papers/riscv-privileged-v1.9.pdf -- Page 34
 unsafe fn handle_interrupt(mcause: usize) {
     match mcause {
         7 => {
             // Timer interrupt
-            scheduler::scheduler();
+            scheduler::_yield();
             clint::set_time_cmp();
         }
         11 => {
@@ -85,13 +87,13 @@ unsafe fn handle_exception(mcause: usize, mepc: usize, sp: usize) {
         }
         8 => {
             // Ecall from user-mode
-            let mut stack = Stack::new(sp);
-            let number = stack.a7();
-            let param_0 = stack.a0();
-            let param_1 = stack.a1();
+            let mut pcb = PCB::new(sp);
+            let number = pcb.get(Register::a7);
+            let param_0 = pcb.get(Register::a0);
+            let param_1 = pcb.get(Register::a1);
             if let Some(ret) = system_calls::syscall(number, param_0, param_1) {
-                stack.set_ret(ret);
-                stack.write();
+                pcb.set(Register::a0, ret);
+                pcb.write();
             }
         }
         _ => {

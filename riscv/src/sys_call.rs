@@ -7,5 +7,4 @@ pub enum SysCall {
     Yield = 23,
     Exit = 42,
     TaskNew = 68,
-    LthreadExRegs = 69,
 }

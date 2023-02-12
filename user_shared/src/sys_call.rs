@@ -2,6 +2,8 @@ use core::arch::asm;
 use riscv_utils as riscv;
 use riscv_utils::SysCall;
 
+use crate::message::Message;
+
 /// Function to transmit the µ-kernel the type of the syscall, and two parameter.
 /// It use the register a7, a0 and a1.
 /// Switches to the kernel with an ecall
@@ -17,7 +19,7 @@ unsafe fn system_call(syscall: SysCall, param_0: usize, param_1: usize) -> usize
         param_0 => "a0",
         param_1 => "a1"
     );
-    asm!("ecall");
+    asm!("ecall"); //Environment Call to exception.S
     let output;
     riscv::read_function_reg!("a0" => output);
     return output;
@@ -53,26 +55,22 @@ pub fn task_new(mepc: usize) -> usize {
     }
 }
 
-pub fn sys_ipc_send(PID: usize, lenght: usize) {
+pub fn sys_ipc_send(pid: usize, length: usize) {
     unsafe {
-        system_call(SysCall::IpcSend, PID, lenght);
+        system_call(SysCall::IpcSend, pid, length);
     }
 }
 
-pub fn sys_ipc_receive() -> usize {
+pub fn sys_ipc_receive<T: Copy>(pid: usize, length: usize) -> Message<T> {
     unsafe {
-        let output;
         system_call(SysCall::IpcReceiver, pid, length);
-        riscv::read_function_reg!("s1" => output);
-        return output;
+        Message::from_registers()
     }
 }
 
-pub fn sys_ipc_receive_all(pid: usize, length: usize) -> usize {
+pub fn sys_ipc_receive_all<T: Copy>(pid: usize, length: usize) -> Message<T> {
     unsafe {
-        let output;
         system_call(SysCall::IpcReceiverAll, pid, length);
-        riscv::read_function_reg!("s1" => output);
-        return output;
+        Message::from_registers()
     }
 }

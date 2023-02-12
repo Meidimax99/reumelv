@@ -1,20 +1,15 @@
-use riscv_utils::SysCall;
-
 use crate::{
-    hardware::{binary_struct::BinaryStruct, memory_mapping::MemoryMapping, stack::Stack},
-    scheduler::*,
-    system_calls::*,
+    hardware::{binary_struct::BinaryStruct, pcb::*},
+    sys::{process::Proc, scheduler, state::Reason},
 };
-static mut ipc: [u64; 64] = [0; 64];
-
 // every word is received Process
 // IPC Table
 static mut IPC_TABLE: [u64; 64] = [0; 64];
 
-pub unsafe fn try_exchange_all(receiving_prog: Prog) {
+pub unsafe fn try_exchange_all(receiving_prog: Proc) {
     let receiving_id = receiving_prog.id() as usize;
     if IPC_TABLE[receiving_id] == 0 as u64 {
-        sys_yield();
+        scheduler::_yield();
         // the receiver expected nothing
         return;
     }
@@ -23,14 +18,14 @@ pub unsafe fn try_exchange_all(receiving_prog: Prog) {
     let bit = BinaryStruct::from(word);
     for id in 0..63 {
         if bit.is_set(id) {
-            try_exchange(get_process(id), receiving_prog);
+            try_exchange(scheduler::get_process(id), receiving_prog);
             return;
         }
     }
     panic!("ERROR in try_exchange_all!");
 }
 
-pub unsafe fn try_exchange(sending_prog: Prog, receiving_prog: Prog) {
+pub unsafe fn try_exchange(sending_prog: Proc, receiving_prog: Proc) {
     let sender_id = sending_prog.id() as usize;
     let receiver_id = receiving_prog.id() as usize;
     // word is one line from the ipc_table
@@ -54,20 +49,20 @@ pub unsafe fn try_exchange(sending_prog: Prog, receiving_prog: Prog) {
         send_ipc(sending_prog, receiving_prog);
         clear_ipc_block(sending_prog, receiving_prog);
     } else {
-        sys_yield();
+        scheduler::_yield();
     }
 }
 
-unsafe fn send_ipc(sending_prog: Prog, receiving_prog: Prog) {
+unsafe fn send_ipc(sending_prog: Proc, receiving_prog: Proc) {
     // read the message from the sending Process and write it to the receiver Process
-    let sending_stack = Stack::new(sending_prog._sp());
-    let msg = sending_stack.s0();
-    let mut receive_stack = Stack::new(receiving_prog._sp());
-    receive_stack.write_s0(msg);
+    let sending_stack = PCB::new(sending_prog._sp());
+    let msg = sending_stack.get(Register::s0);
+    let mut receive_stack = PCB::new(receiving_prog._sp());
+    receive_stack.set(Register::s0, msg);
     receive_stack.write();
 }
 
-pub fn set_sending_ipc_block(sending_prog: Prog, receiving_id: usize) {
+pub fn set_sending_ipc_block(sending_prog: Proc, receiving_id: usize) {
     unsafe {
         // set our bit to the receiver process in our table
         let mut word = BinaryStruct::from(IPC_TABLE[receiving_id]);
@@ -78,15 +73,15 @@ pub fn set_sending_ipc_block(sending_prog: Prog, receiving_id: usize) {
     }
 }
 
-pub fn set_receiver_ipc_block(receiving_prog: Prog, sender_id: usize) {
+pub fn set_receiver_ipc_block(receiving_prog: Proc, sender_id: usize) {
     receiving_prog.set_blocked(Reason::ReceiveIpc, sender_id);
 }
 
-pub fn set_receiver_ipc_block_all(receiving_prog: Prog) {
+pub fn set_receiver_ipc_block_all(receiving_prog: Proc) {
     receiving_prog.set_blocked(Reason::ReceiveIpcAll, 0);
 }
 
-unsafe fn clear_ipc_block(sending_prog: Prog, receiving_prog: Prog) {
+unsafe fn clear_ipc_block(sending_prog: Proc, receiving_prog: Proc) {
     let word = IPC_TABLE[receiving_prog.id() as usize];
     let mut bit = BinaryStruct::from(word);
     bit.at(sending_prog.id() as usize, false);

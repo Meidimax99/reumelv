@@ -4,6 +4,7 @@
     "lldb.showDisassembly": "always",
     "lldb.dereferencePointers": true,
     "lldb.consoleMode": "commands",
+    "editor.formatOnSave": true,
     "spellright.language": [
         "en"
     ],

@@ -86,7 +86,7 @@ fn get_pmpidx(mepc: usize) -> usize {
     return ((mepc - 0x80000000) / 0x00100000) - 1;
 }
 
-pub fn scheduler() {
+pub fn _yield() {
     switch(next().expect("No next programm"));
 }
 
@@ -135,7 +135,7 @@ fn switch(prog: Proc) {
                     prog_data.id, prog_data.state
                 )
             }
-            State::_Blocked(_) => {
+            State::Blocked(_, _) => {
                 panic!(
                     "Tried to switch to user proc: {:?}, with state: {:?}",
                     prog_data.id, prog_data.state
@@ -145,7 +145,7 @@ fn switch(prog: Proc) {
     }
 }
 
-pub unsafe fn get_Process(process_id: usize) -> Proc {
+pub unsafe fn get_process(process_id: usize) -> Proc {
     for i in 0..PROCS.len() {
         if let Some(process) = &mut PROCS[i] {
             return Proc {

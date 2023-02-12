@@ -3,10 +3,14 @@
 .align 4
 .set REG_SIZE, 8
 exception:
+        //More info https://web.eecs.utk.edu/~smarz1/courses/ece356/notes/assembly/
         // make room to save registers.
-        addi sp, sp, -256
-
+        addi sp, sp, -256       //TODO only 31 values are stored into stack, but space for 32 is reserved? This results in inconsistencies in stack.rs
+                                //This does not result in loss of data since    x0 is hardwired to 0 anyways
         // save the registers.
+        //Infos on register https://en.wikichip.org/wiki/risc-v/registers
+
+
         sd ra, 0(sp)
         sd sp, 1*REG_SIZE(sp)
         sd gp, 2*REG_SIZE(sp)
@@ -39,14 +43,18 @@ exception:
         sd t5, 29*REG_SIZE(sp)
         sd t6, 30*REG_SIZE(sp)
 
-        csrr a0, mepc
-        csrr a1, mcause
-        mv a2, sp
-        la sp, _stack_end
+        sd zero, 31*REG_SIZE(sp)        //Added to provide all registers in the memory snapshot of the registers and fit the alignment
 
-        // call the C trap handler in trap.c
+        //More info https://riscv.org/wp-content/uploads/2017/05/riscv-privileged-v1.10.pdf
+        csrr a0, mepc           //Read control register mepc (Machine exception program counter) into a0 (function argument 0/ return value 0)
+        csrr a1, mcause         //Read control register mcause (Machine control register) into a1 (function argument 1/ return value 1)   
+        mv a2, sp               // Copy stack pointer int a2 as function argument 2
+        la sp, _stack_end       //TODO Where does "_stack_end" come from
+
+        // call the C trap handler in exception_handler.rs
         call exception_handler
 
+        //Restore Stack Pointer, the stackpointer is returned from the exception_handler function
         mv sp, a0
 
         // restore registers.
@@ -81,8 +89,9 @@ exception:
         ld t4, 28*REG_SIZE(sp)
         ld t5, 29*REG_SIZE(sp)
         ld t6, 30*REG_SIZE(sp)
+        
 
-        addi sp, sp, 256
+        addi sp, sp, 256 //clear saved registers from stack
 
         // return to whatever we were doing in the kernel.
         mret

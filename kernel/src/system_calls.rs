@@ -1,9 +1,12 @@
-use crate::hardware::{
-    memory_mapping::MemoryMapping,
-    uart::{self},
-};
 use crate::ipc::*;
 use crate::scheduler::{self};
+use crate::{
+    hardware::{
+        memory_mapping::MemoryMapping,
+        uart::{self},
+    },
+    sys::process::Proc,
+};
 use crate::{ipc::set_sending_ipc_block, scheduler::*};
 pub use core::arch::asm;
 use core::ops::Add;
@@ -16,7 +19,6 @@ pub fn syscall_from(number: usize) -> SysCall {
         SysCall::Yield,
         SysCall::Exit,
         SysCall::TaskNew,
-        SysCall::LthreadExRegs,
         SysCall::IpcSend,
         SysCall::IpcReceiver,
         SysCall::IpcReceiverAll
@@ -24,6 +26,7 @@ pub fn syscall_from(number: usize) -> SysCall {
     panic!("Illegal syscall: {}", number);
 }
 
+//TODO give whole PCB to the syscall function??
 pub unsafe fn syscall(number: usize, _param_0: usize, _param_1: usize) -> Option<usize> {
     match syscall_from(number) {
         SysCall::GetChar => {
@@ -48,11 +51,6 @@ pub unsafe fn syscall(number: usize, _param_0: usize, _param_1: usize) -> Option
         SysCall::TaskNew => {
             scheduler::cur().increment_mepc();
             return task_new(_param_0);
-        }
-        SysCall::LthreadExRegs => {
-            //TODO syscall for creating and switching between threads, needs valid ip and sp, returns current thread id
-            scheduler::cur().increment_mepc();
-            return None;
         }
         SysCall::IpcSend => {
             sys_ipc_send(_param_0, _param_1);
@@ -96,25 +94,25 @@ pub unsafe fn sys_print_string(str_ptr: usize, size: usize) {
 }
 
 unsafe fn sys_yield() {
-    scheduler();
+    scheduler::_yield();
 }
 
 unsafe fn sys_ipc_send(receiver_id: usize, _length: usize) {
-    let receiver_prog: Prog = get_process(receiver_id);
-    let sender_prog: Prog = cur();
+    let receiver_prog: Proc = get_process(receiver_id);
+    let sender_prog: Proc = cur();
     set_sending_ipc_block(sender_prog, receiver_id);
     try_exchange(sender_prog, receiver_prog);
 }
 
 unsafe fn sys_ipc_receive(sender_id: usize, _length: usize) {
-    let sender_prog: Prog = get_process(sender_id);
-    let receiver_prog: Prog = cur();
+    let sender_prog: Proc = get_process(sender_id);
+    let receiver_prog: Proc = cur();
     set_receiver_ipc_block(receiver_prog, sender_id);
     try_exchange(sender_prog, receiver_prog);
 }
 
 unsafe fn sys_ipc_receive_all(_length: usize) {
-    let receiver_prog: Prog = cur();
+    let receiver_prog: Proc = cur();
     set_receiver_ipc_block_all(receiver_prog);
     try_exchange_all(receiver_prog);
 }
