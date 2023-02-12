@@ -20,11 +20,11 @@ impl Stack {
     }
 
     pub fn s0(&self) -> usize {
-        self.1[7]
+        self.1[8]
     }
 
     pub fn write_s0(&mut self, value: usize) {
-        self.1[7] = value;
+        self.1[8] = value;
     }
     /// Sets the return value.
     pub fn set_ret(&mut self, ret: usize) {

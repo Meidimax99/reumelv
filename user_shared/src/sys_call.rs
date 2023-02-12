@@ -63,7 +63,7 @@ pub fn sys_ipc_receive() -> usize {
     unsafe {
         let output;
         system_call(SysCall::IpcReceiver, pid, length);
-        riscv::read_function_reg!("s0" => output);
+        riscv::read_function_reg!("s1" => output);
         return output;
     }
 }
@@ -72,7 +72,7 @@ pub fn sys_ipc_receive_all(pid: usize, length: usize) -> usize {
     unsafe {
         let output;
         system_call(SysCall::IpcReceiverAll, pid, length);
-        riscv::read_function_reg!("s0" => output);
+        riscv::read_function_reg!("s1" => output);
         return output;
     }
 }

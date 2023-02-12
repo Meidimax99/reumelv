@@ -3,7 +3,7 @@ use crate::hardware::{
     uart::{self},
 };
 use crate::ipc::*;
-use crate::scheduler::{self, get_process, Prog};
+use crate::scheduler::{self};
 use crate::{ipc::set_sending_ipc_block, scheduler::*};
 pub use core::arch::asm;
 use core::ops::Add;

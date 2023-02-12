@@ -14,7 +14,7 @@ pub fn write_ipc(information: usize) {
     // we want to write in s0
     unsafe {
         riscv_utils::write_function_reg!(
-            information => "s0"
+            information => "s1"
         );
     }
 }

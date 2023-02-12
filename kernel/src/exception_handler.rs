@@ -1,12 +1,12 @@
 use crate::hardware::uart;
 use crate::macros::print;
 use crate::sys::dispatcher;
+use crate::system_calls;
 use crate::{
     hardware::{binary_struct::BinaryStruct, clint, plic, stack::Stack},
     sys::scheduler,
 };
 
-use super::system_calls;
 use riscv_utils::*;
 
 #[no_mangle]
@@ -55,6 +55,17 @@ unsafe fn handle_exception(mcause: usize, mepc: usize, sp: usize) {
             read_machine_reg!("mtval" => mtval);
             panic!(
                 "Instruction access fault in user prog: {:?}, mepc: 0x{:x}, mtval: 0x{:x}",
+                scheduler::cur().id(),
+                mepc,
+                mtval
+            );
+        }
+        2 => {
+            // Illegal instruction fault
+            let mtval: usize;
+            read_machine_reg!("mtval" => mtval);
+            panic!(
+                "Illegal instruction fault in user prog: {:?}, mepc: 0x{:x}, mtval: 0x{:x}",
                 scheduler::cur().id(),
                 mepc,
                 mtval
