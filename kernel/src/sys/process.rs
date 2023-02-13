@@ -30,8 +30,8 @@ impl Proc {
     /// TODO Experimental
     pub fn is_blocked(&self, reason: Reason) -> bool {
         unsafe {
-            if let State::Blocked(rsn @ reason, _) = self.get().state {
-                return true;
+            if let State::Blocked(rsn, _) = self.get().state {
+                return reason == rsn;
             }
             false
         }

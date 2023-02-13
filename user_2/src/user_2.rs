@@ -31,9 +31,4 @@ extern "C" fn main() {
 
         sys_ipc_send(0);
     }
-
-    /* let str: Message<&str> = sys_ipc_receive(0);
-    unsafe {
-        str.content.print();
-    } */
 }

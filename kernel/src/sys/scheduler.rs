@@ -2,9 +2,11 @@ use super::{process::*, state::*};
 use crate::hardware::{clint, pmp};
 use riscv_utils;
 
+///Index of the currently running process in he PROCS array
 static mut CUR_PROG_IDX: usize = 0;
 static mut ID_SEED: u16 = 0xACE1;
 const NONE: Option<ProcessData> = None;
+/// Array of process data, typically indexed with the proc idx
 pub static mut PROCS: [Option<ProcessData>; 64] = [NONE; 64];
 
 unsafe fn boot_proc(proc: Proc) {
@@ -149,6 +151,7 @@ fn switch(prog: Proc) {
     }
 }
 
+//Get a process by its id
 pub unsafe fn get_process(process_id: usize) -> Proc {
     for i in 0..PROCS.len() {
         if let Some(process) = &mut PROCS[i] {

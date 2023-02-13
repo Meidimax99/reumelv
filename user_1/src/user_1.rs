@@ -3,7 +3,7 @@
 
 use user_shared::{
     message::*,
-    sys_call::{exit, sys_ipc_receive_all, sys_ipc_send},
+    sys_call::{exit, sys_ipc_receive_all, sys_ipc_send, sys_yield},
     traits::Print,
 };
 
@@ -33,10 +33,4 @@ extern "C" fn main() {
         REC.print();
         value.print();
     }
-
-    /* let str = "Test123123123123123123\n";
-    let msg = Message::from_generic(str);
-    msg.write();
-    sys_ipc_send(1);
-    exit(); */
 }
