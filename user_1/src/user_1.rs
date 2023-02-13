@@ -13,7 +13,7 @@ const SND: &str = "Send:\t";
 
 #[no_mangle]
 extern "C" fn main() {
-    /* let mut value = 0;
+    let mut value = 0;
 
     loop {
         value = value + 1;
@@ -32,11 +32,11 @@ extern "C" fn main() {
         OUT_FMT.print();
         REC.print();
         value.print();
-    } */
+    }
 
-    let str = "Test123123123123123123\n";
+    /* let str = "Test123123123123123123\n";
     let msg = Message::from_generic(str);
     msg.write();
     sys_ipc_send(1);
-    exit();
+    exit(); */
 }
