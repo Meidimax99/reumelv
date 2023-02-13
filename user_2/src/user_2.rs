@@ -13,10 +13,10 @@ const SND: &str = "Send:\t";
 
 #[no_mangle]
 extern "C" fn main() {
-    loop {
+    /* loop {
         let mut value: usize;
         unsafe {
-            value = sys_ipc_receive_all(0, 8).content;
+            value = sys_ipc_receive_all(0).content;
             OUT_FMT.print();
             REC.print();
             value.print();
@@ -29,6 +29,11 @@ extern "C" fn main() {
         SND.print();
         value.print();
 
-        sys_ipc_send(0, 8);
+        sys_ipc_send(0);
+    } */
+    
+    let str: Message<&str> = sys_ipc_receive(0);
+    unsafe {
+        str.content.print();
     }
 }

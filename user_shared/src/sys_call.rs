@@ -55,22 +55,22 @@ pub fn task_new(mepc: usize) -> usize {
     }
 }
 
-pub fn sys_ipc_send(pid: usize, length: usize) {
+pub fn sys_ipc_send(pid: usize) {
     unsafe {
-        system_call(SysCall::IpcSend, pid, length);
+        system_call(SysCall::IpcSend, pid, 0);
     }
 }
 
-pub fn sys_ipc_receive<T: Copy>(pid: usize, length: usize) -> Message<T> {
+pub fn sys_ipc_receive<T: Copy>(pid: usize) -> Message<T> {
     unsafe {
-        system_call(SysCall::IpcReceiver, pid, length);
+        system_call(SysCall::IpcReceiver, pid, 0);
         Message::from_registers()
     }
 }
 
-pub fn sys_ipc_receive_all<T: Copy>(pid: usize, length: usize) -> Message<T> {
+pub fn sys_ipc_receive_all<T: Copy>(pid: usize) -> Message<T> {
     unsafe {
-        system_call(SysCall::IpcReceiverAll, pid, length);
+        system_call(SysCall::IpcReceiverAll, pid, 0);
         Message::from_registers()
     }
 }

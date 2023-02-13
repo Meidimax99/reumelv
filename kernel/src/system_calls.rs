@@ -53,7 +53,7 @@ pub unsafe fn syscall(number: usize, _param_0: usize, _param_1: usize) -> Option
             return task_new(_param_0);
         }
         SysCall::IpcSend => {
-            sys_ipc_send(_param_0, _param_1);
+            sys_ipc_send(_param_0);
             scheduler::cur().increment_mepc();
             return None;
         }
@@ -97,7 +97,7 @@ unsafe fn sys_yield() {
     scheduler::_yield();
 }
 
-unsafe fn sys_ipc_send(receiver_id: usize, _length: usize) {
+unsafe fn sys_ipc_send(receiver_id: usize) {
     let receiver_prog: Proc = get_process(receiver_id);
     let sender_prog: Proc = cur();
     set_sending_ipc_block(sender_prog, receiver_id);

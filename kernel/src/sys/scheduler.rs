@@ -29,6 +29,10 @@ pub unsafe fn start_tau() {
         proc.init_proc_state.init_mepc = 0x80100000;
         proc.state = State::Starting;
     }
+    if let Some(proc) = &mut PROCS[1] {
+        proc.init_proc_state.init_mepc = 0x80200000;
+        proc.state = State::Starting;
+    }
     boot_proc(cur());
 }
 
@@ -87,7 +91,7 @@ fn get_pmpidx(mepc: usize) -> usize {
 }
 
 pub fn _yield() {
-    switch(next().expect("No next programm"));
+    switch(next().expect("No next program"));
 }
 
 /// Returns the current user prog.
@@ -148,10 +152,12 @@ fn switch(prog: Proc) {
 pub unsafe fn get_process(process_id: usize) -> Proc {
     for i in 0..PROCS.len() {
         if let Some(process) = &mut PROCS[i] {
-            return Proc {
-                idx: CUR_PROG_IDX,
-                id: process.id,
-            };
+            if process.id == process_id {
+                return Proc {
+                    idx: i,
+                    id: process.id,
+                };
+            }
         }
     }
     panic!("The Process dose not exist!");

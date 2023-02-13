@@ -3,7 +3,7 @@
 
 use user_shared::{
     message::*,
-    sys_call::{sys_ipc_receive_all, sys_ipc_send},
+    sys_call::{exit, sys_ipc_receive_all, sys_ipc_send},
     traits::Print,
 };
 
@@ -11,10 +11,9 @@ const OUT_FMT: &str = "\n[Process 0] ";
 const REC: &str = "Receive:\t";
 const SND: &str = "Send:\t";
 
-//TODO IPC length?
 #[no_mangle]
 extern "C" fn main() {
-    let mut value = 0;
+    /* let mut value = 0;
 
     loop {
         value = value + 1;
@@ -25,13 +24,19 @@ extern "C" fn main() {
         SND.print();
         value.print();
 
-        sys_ipc_send(1, 8);
+        sys_ipc_send(1);
         unsafe {
-            value = sys_ipc_receive_all(1, 8).content;
+            value = sys_ipc_receive_all(1).content;
         }
 
         OUT_FMT.print();
         REC.print();
         value.print();
-    }
+    } */
+
+    let str = "Test123123123123123123\n";
+    let msg = Message::from_generic(str);
+    msg.write();
+    sys_ipc_send(1);
+    exit();
 }

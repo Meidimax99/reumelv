@@ -34,13 +34,9 @@ pub unsafe fn try_exchange(sending_prog: Proc, receiving_prog: Proc) {
     let bit = BinaryStruct::from(word);
     // is the sending process and the receiver process valid
 
-    let sending_block = sending_prog
-        .is_blocked_of(Reason::SendingIpc, receiver_id)
-        .0;
-    let receiving_block = receiving_prog
-        .is_blocked_of(Reason::ReceiveIpc, sender_id)
-        .0;
-    let receiving_block_all = receiving_prog.is_blocked_of(Reason::ReceiveIpcAll, 0).0;
+    let sending_block = sending_prog.is_blocked_of(Reason::SendingIpc, receiver_id);
+    let receiving_block = receiving_prog.is_blocked_of(Reason::ReceiveIpc, sender_id);
+    let receiving_block_all = receiving_prog.is_blocked(Reason::ReceiveIpcAll);
     let sender_bit_set = bit.is_set(sending_prog.id() as usize);
 
     if (sending_block && receiving_block && sender_bit_set)

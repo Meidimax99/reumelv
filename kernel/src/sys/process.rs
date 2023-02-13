@@ -26,15 +26,19 @@ impl Proc {
         }
     }
     /// If blocked, returns the reason. Otherwise None.
-    pub fn is_blocked(&self, reason: Reason, number: usize) -> bool {
-        unsafe { self.get().state == State::Blocked(reason, number) }
-    }
-    pub fn is_blocked_of(&self, reason: Reason, number: usize) -> (bool, usize) {
-        if self.is_blocked(reason, number) {
-            return (true, number);
-        } else {
-            return (false, 0);
+    ///
+    /// TODO Experimental
+    pub fn is_blocked(&self, reason: Reason) -> bool {
+        unsafe {
+            if let State::Blocked(rsn @ reason, _) = self.get().state {
+                return true;
+            }
+            false
         }
+    }
+
+    pub fn is_blocked_of(&self, reason: Reason, number: usize) -> bool {
+        unsafe { self.get().state == State::Blocked(reason, number) }
     }
 
     pub fn set_blocked(&self, reason: Reason, number: usize) {
