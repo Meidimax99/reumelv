@@ -1,5 +1,8 @@
 use crate::{
-    hardware::{binary_struct::BinaryStruct, pcb::*},
+    hardware::{
+        binary_struct::BinaryStruct,
+        pcb::{self, *},
+    },
     sys::{process::Proc, scheduler, state::Reason},
 };
 // every word is received Process
@@ -51,11 +54,9 @@ pub unsafe fn try_exchange(sending_prog: Proc, receiving_prog: Proc) {
 
 unsafe fn send_ipc(sending_prog: Proc, receiving_prog: Proc) {
     // read the message from the sending Process and write it to the receiver Process
-    let sending_stack = PCB::new(sending_prog._sp());
-    let msg = sending_stack.get(Register::s0);
-    let mut receive_stack = PCB::new(receiving_prog._sp());
-    receive_stack.set(Register::s0, msg);
-    receive_stack.write();
+    let snd_sp = sending_prog._sp();
+    let rcv_sp = receiving_prog._sp();
+    pcb::copy_ipc_regs_img(snd_sp, rcv_sp);
 }
 
 pub fn set_sending_ipc_block(sending_prog: Proc, receiving_id: usize) {

@@ -34,7 +34,6 @@ where
 
     #[allow(unused_assignments)]
     pub fn write(&self) {
-        //TODO write macro?
         unsafe {
             let mapping = self.mapping;
             write_array_to_registers!(mapping ; "s0", "s1", "s2", "s3", "s4", "s5", "s6", "s7", "s8", "s9", "s10", "s11");

@@ -1,5 +1,3 @@
-use core::fmt::Binary;
-
 include!("sys_call.rs");
 
 /// This trait is for a print with other datatypes. It works with str, char and usize.

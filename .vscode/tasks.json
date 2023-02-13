@@ -2,7 +2,7 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "Debug riscv_rust_os",
+            "label": "Debug kernel",
             "type": "shell",
             "command": "qemu-system-riscv64",
             "options": {
@@ -22,7 +22,7 @@
                 "-S"
             ],
             "dependsOn": [
-                "Build riscv_rust_os"
+                "Build kernel"
             ],
             "dependsOrder": "sequence",
             "problemMatcher": [
@@ -44,12 +44,12 @@
             }
         },
         {
-            "label": "Debug",
+            "label": "Build all and Debug",
             
             "dependsOn": [
                 "Build user binaries",
-                "Build riscv_rust_os",
-                "Debug riscv_rust_os"
+                "Build kernel",
+                "Debug kernel"
             ],
             "dependsOrder": "sequence",
             "group": {
@@ -58,7 +58,7 @@
             }
         },
         {
-            "label": "Build riscv_rust_os",
+            "label": "Build kernel",
             "type": "shell",
             "command": "cargo",
             "problemMatcher": [],
