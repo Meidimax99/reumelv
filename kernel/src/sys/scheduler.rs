@@ -1,5 +1,8 @@
 use super::{process::*, state::*};
-use crate::hardware::{clint, pmp};
+use crate::{
+    hardware::{clint, pmp},
+    macros::print,
+};
 use riscv_utils;
 
 ///Index of the currently running process in he PROCS array
@@ -130,6 +133,11 @@ fn switch(prog: Proc) {
         match prog_data.state {
             State::Rdy => {
                 CUR_PROG_IDX = prog.idx;
+                print!(
+                    "\n{string:<15}Switch to Process {proc}!",
+                    string = "[Sched]",
+                    proc = CUR_PROG_IDX
+                );
                 pmp::switch_prog_pmp(prog_data.init_proc_state.pmp_idx);
             }
             State::Starting => {

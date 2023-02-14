@@ -3,11 +3,11 @@
 
 use user_shared::{
     message::*,
-    sys_call::{exit, sys_ipc_receive_all, sys_ipc_send, sys_yield},
+    sys_call::{sys_ipc_receive_all, sys_ipc_send},
     traits::Print,
 };
 
-const OUT_FMT: &str = "\n[Process 0] ";
+const OUT_FMT: &str = "\n[Process 0]    ";
 const REC: &str = "Receive:\t";
 const SND: &str = "Send:\t";
 
@@ -20,17 +20,21 @@ extern "C" fn main() {
         let msg = Message::from_generic(value);
         msg.write();
 
-        OUT_FMT.print();
-        SND.print();
-        value.print();
+        "\n[Process 0]    Start sending!".print();
 
         sys_ipc_send(1);
+        "\n[Process 0]    Finish sending!".print();
         unsafe {
+            "\n[Process 0]    Start receiving!".print();
             value = sys_ipc_receive_all(1).content;
+            //Here
+            "\n[Process 0]    Finish receiving!".print();
         }
 
-        OUT_FMT.print();
-        REC.print();
-        value.print();
+        //Timer Interrupt
     }
+
+    /* loop {
+        "1\n".print();
+    } */
 }

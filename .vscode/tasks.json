@@ -47,7 +47,7 @@
             "label": "Build all and Debug",
             
             "dependsOn": [
-                "Build user binaries",
+2                "Build user binaries",
                 "Build kernel",
                 "Debug kernel"
             ],

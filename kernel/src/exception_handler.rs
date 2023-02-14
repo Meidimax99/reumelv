@@ -6,6 +6,7 @@ use crate::hardware::pcb::*;
 use crate::hardware::plic;
 use crate::hardware::uart;
 use crate::macros::print;
+use crate::sys;
 use crate::sys::dispatcher;
 use crate::sys::scheduler;
 use crate::system_calls;
@@ -29,6 +30,7 @@ unsafe extern "C" fn exception_handler(mepc: usize, mcause: usize, sp: usize) ->
 unsafe fn handle_interrupt(mcause: usize) {
     match mcause {
         7 => {
+            print!("\n{string:<15}Timer Interrupt!\n", string = "[Exc_Handler]");
             // Timer interrupt
             scheduler::_yield();
             clint::set_time_cmp();

@@ -3,6 +3,7 @@ use crate::{
         binary_struct::BinaryStruct,
         pcb::{self, *},
     },
+    macros::print,
     sys::{process::Proc, scheduler, state::Reason},
 };
 // every word is received Process
@@ -42,9 +43,16 @@ pub unsafe fn try_exchange(sending_prog: Proc, receiving_prog: Proc) {
     let receiving_block_all = receiving_prog.is_blocked(Reason::ReceiveIpcAll);
     let sender_bit_set = bit.is_set(sending_prog.id() as usize);
 
+    //TODO sending_block && (receiving_block ||receiving_block_all ) &&sender_bit_set
     if (sending_block && receiving_block && sender_bit_set)
         || (sending_block && receiving_block_all && sender_bit_set)
     {
+        print!(
+            "\n{string:<15}Exchange Message from {sender} to {receiver}!",
+            string = "[IPC]",
+            sender = sender_id,
+            receiver = receiver_id
+        );
         send_ipc(sending_prog, receiving_prog);
         clear_ipc_block(sending_prog, receiving_prog);
     } else {

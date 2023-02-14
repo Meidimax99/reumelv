@@ -1,4 +1,5 @@
 use crate::hardware::binary_struct::BinaryStruct;
+use crate::sys::set_MIE;
 use crate::{asm, hardware};
 use riscv_utils::*;
 

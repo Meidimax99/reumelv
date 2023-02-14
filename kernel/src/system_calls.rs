@@ -45,7 +45,7 @@ pub unsafe fn syscall(number: usize, _param_0: usize, _param_1: usize) -> Option
         }
         SysCall::Yield => {
             scheduler::cur().increment_mepc();
-            sys_yield();
+            scheduler::_yield();
             return None;
         }
         SysCall::TaskNew => {
@@ -53,18 +53,18 @@ pub unsafe fn syscall(number: usize, _param_0: usize, _param_1: usize) -> Option
             return task_new(_param_0);
         }
         SysCall::IpcSend => {
-            sys_ipc_send(_param_0);
             scheduler::cur().increment_mepc();
+            sys_ipc_send(_param_0);
             return None;
         }
         SysCall::IpcReceiver => {
-            sys_ipc_receive(_param_0, _param_1);
             scheduler::cur().increment_mepc();
+            sys_ipc_receive(_param_0, _param_1);
             return None;
         }
         SysCall::IpcReceiverAll => {
-            sys_ipc_receive_all(_param_0);
             scheduler::cur().increment_mepc();
+            sys_ipc_receive_all(_param_0);
             return None;
         }
     }
@@ -72,7 +72,7 @@ pub unsafe fn syscall(number: usize, _param_0: usize, _param_1: usize) -> Option
 
 unsafe fn exit() {
     scheduler::end_prog(scheduler::cur());
-    sys_yield();
+    scheduler::_yield();
 }
 
 fn task_new(mepc: usize) -> Option<usize> {
@@ -91,10 +91,6 @@ pub unsafe fn sys_print_string(str_ptr: usize, size: usize) {
         uart::print_char(char);
         str_ptr = str_ptr.add(1);
     }
-}
-
-unsafe fn sys_yield() {
-    scheduler::_yield();
 }
 
 unsafe fn sys_ipc_send(receiver_id: usize) {

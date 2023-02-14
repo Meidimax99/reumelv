@@ -1,3 +1,5 @@
+use crate::macros::print;
+
 use super::{scheduler, state::*};
 #[derive(PartialEq, Clone, Copy)]
 pub struct Proc {
@@ -22,6 +24,11 @@ impl Proc {
     }
     pub fn set_rdy(&self) {
         unsafe {
+            print!(
+                "\n{string:<15}Set Process {proc} ready!",
+                string = "[Process]",
+                proc = self.idx
+            );
             self.get().state = State::Rdy;
         }
     }
@@ -43,6 +50,11 @@ impl Proc {
 
     pub fn set_blocked(&self, reason: Reason, number: usize) {
         unsafe {
+            print!(
+                "\n{string:<15}Set Process {proc} blocked!",
+                string = "[Process]",
+                proc = self.idx
+            );
             self.get().state = State::Blocked(reason, number);
         }
     }
