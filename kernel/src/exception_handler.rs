@@ -4,6 +4,7 @@ use crate::hardware::binary_struct::BinaryStruct;
 use crate::hardware::clint;
 use crate::hardware::plic;
 use crate::hardware::stack_image::*;
+use crate::hardware::uart;
 use crate::macros::log;
 use crate::sys::dispatcher;
 use crate::sys::scheduler;

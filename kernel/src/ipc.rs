@@ -1,11 +1,13 @@
 use crate::{
     hardware::{binary_struct::BinaryStruct, stack_image},
     macros::log,
+    queue::*,
     sys::{process::Proc, scheduler, state::Reason},
 };
 // every word is received Process
 // IPC Table
 static mut IPC_TABLE: [u64; 64] = [0; 64];
+static mut MSG_QUEUE: Queue<u8, 64usize> = Queue::new();
 
 pub unsafe fn try_exchange_any(receiving_prog: Proc) -> Option<usize> {
     let receiving_id = receiving_prog.id() as usize;

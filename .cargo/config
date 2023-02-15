@@ -1,3 +1,3 @@
 [build]
 target = "riscv64gc-unknown-none-elf"
-rustflags = ["--cfg", "ebug"]
+rustflags = ["--cfg", "debug"]

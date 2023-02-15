@@ -7,6 +7,7 @@ mod hardware;
 mod ipc;
 mod macros;
 mod panic_handler;
+mod queue;
 mod setup;
 mod sys;
 mod system_calls;

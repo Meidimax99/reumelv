@@ -6,7 +6,7 @@ use user_shared::{message::Message, sys_call::sys_ipc_send};
 #[no_mangle]
 extern "C" fn main() {
     loop {
-        let msg = "1\n";
+        let msg = "\n1\n";
         let msg = Message::from_generic(msg);
         msg.write();
         sys_ipc_send(2);
