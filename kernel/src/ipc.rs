@@ -7,7 +7,7 @@ use crate::{
 // every word is received Process
 // IPC Table
 static mut IPC_TABLE: [u64; 64] = [0; 64];
-static mut MSG_QUEUE: Queue<u8, 64usize> = Queue::new();
+static mut MSG_QUEUES: [ByteQueue<64usize>; 64] = [ByteQueue::new(); 64];
 
 pub unsafe fn try_exchange_any(receiving_prog: Proc) -> Option<usize> {
     let receiving_id = receiving_prog.id() as usize;
@@ -16,14 +16,9 @@ pub unsafe fn try_exchange_any(receiving_prog: Proc) -> Option<usize> {
         // the receiver expected nothing
         return None;
     }
-    // we must find who the sender process is
-    let word = IPC_TABLE[receiving_id];
-    let bit = BinaryStruct::from(word);
-    for id in 0..63 {
-        if bit.is_set(id) {
-            try_exchange(scheduler::get_process(id), receiving_prog);
-            return Some(id);
-        }
+    if let Ok(id) = MSG_QUEUES[receiving_id].pop() {
+        try_exchange(scheduler::get_process(id as usize), receiving_prog);
+        return Some(id as usize);
     }
     panic!("ERROR in try_exchange_any!");
 }
@@ -72,6 +67,7 @@ pub fn set_sending_ipc_block(sending_prog: Proc, receiving_id: usize) {
         IPC_TABLE[receiving_id] = word.get();
         // set the sending process to blocked
         sending_prog.set_blocked(Reason::SendingIpc, receiving_id);
+        MSG_QUEUES[receiving_id].push(sending_prog.id as u8);
     }
 }
 
