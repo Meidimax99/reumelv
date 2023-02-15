@@ -14,6 +14,14 @@ name = "riscv_utils"
 version = "0.1.0"
 
 [[package]]
+name = "uart"
+version = "0.1.0"
+dependencies = [
+ "riscv_utils",
+ "user_shared",
+]
+
+[[package]]
 name = "user_1"
 version = "0.1.0"
 dependencies = [

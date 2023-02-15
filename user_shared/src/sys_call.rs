@@ -66,9 +66,9 @@ pub fn sys_ipc_receive<T: Copy>(pid: usize) -> Message<T> {
     }
 }
 
-pub fn sys_ipc_receive_all<T: Copy>(pid: usize) -> Message<T> {
+pub fn sys_ipc_receive_any<T: Copy>() -> (usize, Message<T>) {
     unsafe {
-        system_call(SysCall::IpcReceiverAll, pid, 0);
-        Message::from_registers()
+        let pid = system_call(SysCall::IpcReceiverAll, 0, 0);
+        (pid, Message::from_registers())
     }
 }

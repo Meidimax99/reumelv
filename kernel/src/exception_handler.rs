@@ -4,8 +4,7 @@ use crate::hardware::binary_struct::BinaryStruct;
 use crate::hardware::clint;
 use crate::hardware::plic;
 use crate::hardware::stack_image::*;
-use crate::hardware::uart;
-use crate::macros::print;
+use crate::macros::log;
 use crate::sys::dispatcher;
 use crate::sys::scheduler;
 use crate::system_calls;
@@ -28,7 +27,7 @@ unsafe extern "C" fn exception_handler(mepc: usize, mcause: usize, sp: usize) ->
 unsafe fn handle_interrupt(mcause: usize) {
     match mcause {
         7 => {
-            print!("\n{string:<15}Timer Interrupt!\n", string = "[Exc_Handler]");
+            log!("\n{string:<15}Timer Interrupt!\n", string = "[Exc_Handler]");
             // Timer interrupt
             scheduler::schedule();
             clint::set_time_cmp();
@@ -38,7 +37,7 @@ unsafe fn handle_interrupt(mcause: usize) {
             let irq = plic::read_claim();
             match irq {
                 plic::IRQ::Uart => {
-                    print!("{}", uart::read_char());
+                    log!("{}", uart::read_char());
                 }
             }
             plic::write_complete(irq);

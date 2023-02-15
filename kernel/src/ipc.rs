@@ -1,18 +1,18 @@
 use crate::{
     hardware::{binary_struct::BinaryStruct, stack_image},
-    macros::print,
+    macros::log,
     sys::{process::Proc, scheduler, state::Reason},
 };
 // every word is received Process
 // IPC Table
 static mut IPC_TABLE: [u64; 64] = [0; 64];
 
-pub unsafe fn try_exchange_all(receiving_prog: Proc) {
+pub unsafe fn try_exchange_any(receiving_prog: Proc) -> Option<usize> {
     let receiving_id = receiving_prog.id() as usize;
     if IPC_TABLE[receiving_id] == 0 {
         scheduler::schedule();
         // the receiver expected nothing
-        return;
+        return None;
     }
     // we must find who the sender process is
     let word = IPC_TABLE[receiving_id];
@@ -20,10 +20,10 @@ pub unsafe fn try_exchange_all(receiving_prog: Proc) {
     for id in 0..63 {
         if bit.is_set(id) {
             try_exchange(scheduler::get_process(id), receiving_prog);
-            return;
+            return Some(id);
         }
     }
-    panic!("ERROR in try_exchange_all!");
+    panic!("ERROR in try_exchange_any!");
 }
 
 pub unsafe fn try_exchange(sending_prog: Proc, receiving_prog: Proc) {
@@ -38,11 +38,11 @@ pub unsafe fn try_exchange(sending_prog: Proc, receiving_prog: Proc) {
     let sending_block = sending_prog.is_blocked_of(Reason::SendingIpc, receiver_id);
     let receiving_block = receiving_prog.is_blocked_of(Reason::ReceiveIpc, sender_id);
     let receiving_block_all = receiving_prog.is_blocked(Reason::ReceiveIpcAll);
-    let sender_bit_set = bit.is_set(sending_prog.id() as usize);
+    let sender_bit_set = bit.is_set(sending_prog.id() as usize); //sender bit necessary if all the information is already in State? Maybe only necessary for receive
 
     //TODO sending_block && (receiving_block ||receiving_block_all ) &&sender_bit_set
     if sending_block && sender_bit_set && (receiving_block || receiving_block_all) {
-        print!(
+        log!(
             "\n{string:<15}Exchange Message from {sender} to {receiver}!",
             string = "[IPC]",
             sender = sender_id,

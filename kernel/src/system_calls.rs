@@ -59,13 +59,12 @@ pub unsafe fn syscall(number: usize, _param_0: usize, _param_1: usize) -> Option
         }
         SysCall::IpcReceiver => {
             scheduler::cur().increment_mepc();
-            sys_ipc_receive(_param_0, _param_1);
+            sys_ipc_receive(_param_0);
             None
         }
         SysCall::IpcReceiverAll => {
             scheduler::cur().increment_mepc();
-            sys_ipc_receive_all(_param_0);
-            None
+            sys_ipc_receive_any()
         }
     }
 }
@@ -100,15 +99,15 @@ unsafe fn sys_ipc_send(receiver_id: usize) {
     try_exchange(sender_prog, receiver_prog);
 }
 
-unsafe fn sys_ipc_receive(sender_id: usize, _length: usize) {
+unsafe fn sys_ipc_receive(sender_id: usize) {
     let sender_prog: Proc = get_process(sender_id);
     let receiver_prog: Proc = cur();
     set_receiver_ipc_block(receiver_prog, sender_id);
     try_exchange(sender_prog, receiver_prog);
 }
 
-unsafe fn sys_ipc_receive_all(_length: usize) {
+unsafe fn sys_ipc_receive_any() -> Option<usize> {
     let receiver_prog: Proc = cur();
     set_receiver_ipc_block_all(receiver_prog);
-    try_exchange_all(receiver_prog);
+    try_exchange_any(receiver_prog)
 }

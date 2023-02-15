@@ -1,0 +1,14 @@
+[package]
+#todo change authors
+authors = ["Max Meidinger <max_meidinger99@stud.uni-bamberg.de"]
+edition = "2021"
+name = "uart"
+version = "0.1.0"
+
+[dependencies]
+riscv_utils = {path = "../riscv"}
+user_shared = {path = "../user_shared"}
+
+[[bin]]
+name = "uart"
+path = "src/uart.rs"

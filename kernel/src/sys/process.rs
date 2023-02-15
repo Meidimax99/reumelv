@@ -1,4 +1,4 @@
-use crate::macros::print;
+use crate::macros::log;
 
 use super::{scheduler, state::*};
 #[derive(PartialEq, Eq, Clone, Copy)]
@@ -24,7 +24,7 @@ impl Proc {
     }
     pub fn set_rdy(&self) {
         unsafe {
-            print!(
+            log!(
                 "\n{string:<15}Set Process {proc} ready!",
                 string = "[Process]",
                 proc = self.idx
@@ -50,7 +50,7 @@ impl Proc {
 
     pub fn set_blocked(&self, reason: Reason, number: usize) {
         unsafe {
-            print!(
+            log!(
                 "\n{string:<15}Set Process {proc} blocked!",
                 string = "[Process]",
                 proc = self.idx

@@ -45,9 +45,8 @@
         },
         {
             "label": "Build all and Debug",
-            
             "dependsOn": [
-2                "Build user binaries",
+               "Build user binaries",
                 "Build kernel",
                 "Debug kernel"
             ],
@@ -112,10 +111,29 @@
             ]
         },
         {
+            "label": "Build uart server",
+            "type": "shell",
+            "command": "cargo",
+            "problemMatcher": [],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "args": [
+                "objcopy",
+                "--bin",
+                "uart",
+                "--",
+                "-O",
+                "binary",
+                "./target/riscv64gc-unknown-none-elf/debug/uart.bin"
+            ]
+        },
+        {
             "label": "Build user binaries",
             "dependsOn": [
                 "Build user_1",
-                "Build user_2"
+                "Build user_2",
+                "Build uart server"
             ],
             "problemMatcher": [
                 "$rustc"

@@ -1,7 +1,7 @@
 use super::{process::*, state::*};
 use crate::{
     hardware::{clint, pmp},
-    macros::print,
+    macros::{log, print},
 };
 use riscv_utils;
 
@@ -36,6 +36,10 @@ pub unsafe fn start_tau() {
     }
     if let Some(proc) = &mut PROCS[1] {
         proc.init_proc_state.init_mepc = 0x80200000;
+        proc.state = State::Starting;
+    }
+    if let Some(proc) = &mut PROCS[2] {
+        proc.init_proc_state.init_mepc = 0x80300000;
         proc.state = State::Starting;
     }
     boot_proc(cur());
@@ -135,7 +139,7 @@ fn switch(prog: Proc) {
         match prog_data.state {
             State::Rdy => {
                 CUR_PROG_IDX = prog.idx;
-                print!(
+                log!(
                     "\n{string:<15}Switch to Process {proc}!",
                     string = "[Sched]",
                     proc = CUR_PROG_IDX

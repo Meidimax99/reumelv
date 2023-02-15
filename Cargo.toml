@@ -5,4 +5,5 @@ members = [
   "user_shared",
   "user_1",
   "user_2",
+  "uart"
 ]

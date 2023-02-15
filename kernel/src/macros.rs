@@ -58,5 +58,14 @@ macro_rules! enum_matching {
     };
 }
 
-#[allow(unused)]
 pub(crate) use enum_matching;
+
+#[allow(unused)]
+macro_rules! log {
+    ($($arg:tt)*) => {
+        use core::fmt::Write;
+        #[cfg(debug)] write!(crate::hardware::uart::get_uart(), $($arg)*).ok()
+    }
+
+}
+pub(crate) use log;
