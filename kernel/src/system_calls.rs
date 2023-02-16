@@ -1,4 +1,5 @@
 use crate::ipc::*;
+use crate::macros::log;
 use crate::scheduler::{self};
 use crate::{
     hardware::{
@@ -30,39 +31,79 @@ pub fn syscall_from(number: usize) -> SysCall {
 pub unsafe fn syscall(number: usize, _param_0: usize, _param_1: usize) -> Option<usize> {
     match syscall_from(number) {
         SysCall::GetChar => {
+            log!(
+                "\n{string:<15}GetChar from Process {id}!",
+                string = "[Sys_Calls]",
+                id = scheduler::cur().id
+            );
             let char = sys_get_char();
             scheduler::cur().increment_mepc();
             char
         }
         SysCall::Print => {
+            log!(
+                "\n{string:<15}Print from Process {id}!",
+                string = "[Sys_Calls]",
+                id = scheduler::cur().id
+            );
             sys_print_string(_param_0, _param_1);
             scheduler::cur().increment_mepc();
             None
         }
         SysCall::Exit => {
+            log!(
+                "\n{string:<15}Exit from Process {id}!",
+                string = "[Sys_Calls]",
+                id = scheduler::cur().id
+            );
             exit();
             None
         }
         SysCall::Yield => {
+            log!(
+                "\n{string:<15}Yield from Process {id}!",
+                string = "[Sys_Calls]",
+                id = scheduler::cur().id
+            );
             scheduler::cur().increment_mepc();
             scheduler::schedule();
             None
         }
         SysCall::TaskNew => {
+            log!(
+                "\n{string:<15}TaskNew from Process {id}!",
+                string = "[Sys_Calls]",
+                id = scheduler::cur().id
+            );
             scheduler::cur().increment_mepc();
             task_new(_param_0)
         }
         SysCall::IpcSend => {
+            log!(
+                "\n{string:<15}IpcSend from Process {id}!",
+                string = "[Sys_Calls]",
+                id = scheduler::cur().id
+            );
             scheduler::cur().increment_mepc();
             sys_ipc_send(_param_0);
             None
         }
         SysCall::IpcReceiver => {
+            log!(
+                "\n{string:<15}IpcReceive from Process {id}!",
+                string = "[Sys_Calls]",
+                id = scheduler::cur().id
+            );
             scheduler::cur().increment_mepc();
             sys_ipc_receive(_param_0);
             None
         }
         SysCall::IpcReceiverAll => {
+            log!(
+                "\n{string:<15}IpcReceiveAll from Process {id}!",
+                string = "[Sys_Calls]",
+                id = scheduler::cur().id
+            );
             scheduler::cur().increment_mepc();
             sys_ipc_receive_any()
         }

@@ -9,6 +9,7 @@ use crate::macros::log;
 use crate::sys::dispatcher;
 use crate::sys::scheduler;
 use crate::system_calls;
+use riscv_utils::*;
 
 #[no_mangle]
 unsafe extern "C" fn exception_handler(mepc: usize, mcause: usize, sp: usize) -> usize {
@@ -28,7 +29,7 @@ unsafe extern "C" fn exception_handler(mepc: usize, mcause: usize, sp: usize) ->
 unsafe fn handle_interrupt(mcause: usize) {
     match mcause {
         7 => {
-            log!("\n{string:<15}Timer Interrupt!\n", string = "[Exc_Handler]");
+            log!("\n{string:<15}Timer Interrupt!", string = "[Exc_Handler]");
             // Timer interrupt
             scheduler::schedule();
             clint::set_time_cmp();
@@ -92,8 +93,7 @@ unsafe fn handle_exception(mcause: usize, mepc: usize, sp: usize) {
             let param_0 = image.get(Register::a0);
             let param_1 = image.get(Register::a1);
             if let Some(ret) = system_calls::syscall(number, param_0, param_1) {
-                image.set(Register::a0, ret);
-                image.write();
+                write_function_reg!(ret => "a0");
             }
         }
         _ => {
