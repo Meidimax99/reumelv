@@ -32,7 +32,7 @@ unsafe fn handle_interrupt(mcause: usize) {
         7 => {
             print!("\n{string:<15}Timer Interrupt!\n", string = "[Exc_Handler]");
             // Timer interrupt
-            scheduler::_yield();
+            scheduler::schedule();
             clint::set_time_cmp();
         }
         11 => {

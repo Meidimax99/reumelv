@@ -95,7 +95,7 @@ fn get_pmpidx(mepc: usize) -> usize {
     return ((mepc - 0x80000000) / 0x00100000) - 1;
 }
 
-pub fn _yield() {
+pub fn schedule() {
     switch(next().expect("No next program"));
 }
 

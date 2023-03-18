@@ -45,7 +45,7 @@ pub unsafe fn syscall(number: usize, _param_0: usize, _param_1: usize) -> Option
         }
         SysCall::Yield => {
             scheduler::cur().increment_mepc();
-            scheduler::_yield();
+            scheduler::schedule();
             return None;
         }
         SysCall::TaskNew => {
@@ -72,7 +72,7 @@ pub unsafe fn syscall(number: usize, _param_0: usize, _param_1: usize) -> Option
 
 unsafe fn exit() {
     scheduler::end_prog(scheduler::cur());
-    scheduler::_yield();
+    scheduler::schedule();
 }
 
 fn task_new(mepc: usize) -> Option<usize> {

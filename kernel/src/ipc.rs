@@ -13,7 +13,7 @@ static mut IPC_TABLE: [u64; 64] = [0; 64];
 pub unsafe fn try_exchange_all(receiving_prog: Proc) {
     let receiving_id = receiving_prog.id() as usize;
     if IPC_TABLE[receiving_id] == 0 as u64 {
-        scheduler::_yield();
+        scheduler::schedule();
         // the receiver expected nothing
         return;
     }
@@ -56,7 +56,7 @@ pub unsafe fn try_exchange(sending_prog: Proc, receiving_prog: Proc) {
         send_ipc(sending_prog, receiving_prog);
         clear_ipc_block(sending_prog, receiving_prog);
     } else {
-        scheduler::_yield();
+        scheduler::schedule();
     }
 }
 
