@@ -4,6 +4,7 @@ use sys_call as sys;
 use user_shared::{
     message::*,
     sys_call::{self, *},
+    sys_print,
     traits::Print,
 };
 
@@ -18,6 +19,7 @@ extern "C" fn main() {
         unsafe {
             "\n[Process 1]    Start receiving!".print();
             value = sys_ipc_receive_all(0).content;
+            sys_print!("\n[Process 1]    Receive value: ", value);
             "\n[Process 1]    End receiving!".print();
         }
         value = value + 1;
