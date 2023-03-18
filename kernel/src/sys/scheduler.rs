@@ -42,6 +42,7 @@ pub unsafe fn start_tau() {
 }
 
 //Fills the PROCS array with inactive programs
+#[allow(clippy::needless_range_loop)]
 unsafe fn init_procs() {
     for idx in 0..PROCS.len() {
         PROCS[idx] = Some(ProcessData::new(idx, InitProcState::new(idx)));
@@ -68,9 +69,10 @@ pub fn task_new(mepc: usize) -> usize {
         CUR_PROG_IDX = info.1;
         boot_proc(cur());
     }
-    return info.0;
+    info.0
 }
 // returns a tuple (id, idx) of the next inactive process, returns 0 if no inactive process is found. (0 because tau never quits)
+#[allow(clippy::needless_range_loop)]
 fn get_inact_proc() -> (usize, usize) {
     unsafe {
         for idx in 0..PROCS.len() {
@@ -82,7 +84,7 @@ fn get_inact_proc() -> (usize, usize) {
             }
         }
     };
-    return (0, 0);
+    (0, 0)
 }
 
 unsafe fn gen_id() {
@@ -92,7 +94,7 @@ unsafe fn gen_id() {
 }
 
 fn get_pmpidx(mepc: usize) -> usize {
-    return ((mepc - 0x80000000) / 0x00100000) - 1;
+    ((mepc - 0x80000000) / 0x00100000) - 1
 }
 
 pub fn schedule() {
@@ -124,7 +126,7 @@ fn next() -> Option<Proc> {
             }
         }
     }
-    return None;
+    None
 }
 /// Switches the program.
 fn switch(prog: Proc) {
@@ -160,6 +162,7 @@ fn switch(prog: Proc) {
 }
 
 //Get a process by its id
+#[allow(clippy::needless_range_loop)]
 pub unsafe fn get_process(process_id: usize) -> Proc {
     for i in 0..PROCS.len() {
         if let Some(process) = &mut PROCS[i] {

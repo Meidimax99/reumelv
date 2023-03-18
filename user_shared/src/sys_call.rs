@@ -22,7 +22,7 @@ unsafe fn system_call(syscall: SysCall, param_0: usize, param_1: usize) -> usize
     asm!("ecall"); //Environment Call to exception.S
     let output;
     riscv::read_function_reg!("a0" => output);
-    return output;
+    output
 }
 
 /// Syscall to get a char from the user.
@@ -33,7 +33,7 @@ pub fn get_char() -> Option<char> {
         if res == 0 {
             return None;
         }
-        return Some(res as u8 as char);
+        Some(res as u8 as char)
     }
 }
 /// Syscall to exit a process
@@ -50,9 +50,7 @@ pub fn sys_yield() {
 }
 
 pub fn task_new(mepc: usize) -> usize {
-    unsafe {
-        return system_call(SysCall::TaskNew, mepc, 0);
-    }
+    unsafe { system_call(SysCall::TaskNew, mepc, 0) }
 }
 
 pub fn sys_ipc_send(pid: usize) {

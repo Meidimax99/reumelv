@@ -26,46 +26,46 @@ pub fn syscall_from(number: usize) -> SysCall {
     panic!("Illegal syscall: {}", number);
 }
 
-//TODO give whole PCB to the syscall function??
+//TODO give whole Stack_Image to the syscall function??
 pub unsafe fn syscall(number: usize, _param_0: usize, _param_1: usize) -> Option<usize> {
     match syscall_from(number) {
         SysCall::GetChar => {
             let char = sys_get_char();
             scheduler::cur().increment_mepc();
-            return char;
+            char
         }
         SysCall::Print => {
             sys_print_string(_param_0, _param_1);
             scheduler::cur().increment_mepc();
-            return None;
+            None
         }
         SysCall::Exit => {
             exit();
-            return None;
+            None
         }
         SysCall::Yield => {
             scheduler::cur().increment_mepc();
             scheduler::schedule();
-            return None;
+            None
         }
         SysCall::TaskNew => {
             scheduler::cur().increment_mepc();
-            return task_new(_param_0);
+            task_new(_param_0)
         }
         SysCall::IpcSend => {
             scheduler::cur().increment_mepc();
             sys_ipc_send(_param_0);
-            return None;
+            None
         }
         SysCall::IpcReceiver => {
             scheduler::cur().increment_mepc();
             sys_ipc_receive(_param_0, _param_1);
-            return None;
+            None
         }
         SysCall::IpcReceiverAll => {
             scheduler::cur().increment_mepc();
             sys_ipc_receive_all(_param_0);
-            return None;
+            None
         }
     }
 }
@@ -76,15 +76,15 @@ unsafe fn exit() {
 }
 
 fn task_new(mepc: usize) -> Option<usize> {
-    return Some(scheduler::task_new(mepc));
+    Some(scheduler::task_new(mepc))
 }
 unsafe fn sys_get_char() -> Option<usize> {
-    return Some(uart::read_char() as usize);
+    Some(uart::read_char() as usize)
 }
 
 pub unsafe fn sys_print_string(str_ptr: usize, size: usize) {
     // cast to u8 to increment Option<usize> to char pointer
-    let mut str_ptr = str_ptr.clone();
+    let mut str_ptr = str_ptr;
     for _ in 0..size {
         // Read value from the pointer with MemoryMapping
         let char = MemoryMapping::<char>::new(str_ptr as usize).read();

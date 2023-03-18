@@ -1,16 +1,6 @@
 #![no_std]
 #![no_main]
-use sys_call as sys;
-use user_shared::{
-    message::*,
-    sys_call::{self, *},
-    sys_print,
-    traits::Print,
-};
-
-const OUT_FMT: &str = "\n[Process 1]    ";
-const REC: &str = "Receive:\t";
-const SND: &str = "Send:\t";
+use user_shared::{message::*, sys_call::*, sys_print, traits::Print};
 
 #[no_mangle]
 extern "C" fn main() {
@@ -22,7 +12,7 @@ extern "C" fn main() {
             sys_print!("\n[Process 1]    Receive value: ", value);
             "\n[Process 1]    End receiving!".print();
         }
-        value = value + 1;
+        value += 1;
         let msg = Message::from_generic(value);
         msg.write();
 

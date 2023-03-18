@@ -61,7 +61,7 @@ macro_rules! write_array_to_registers {
         let mut i = 0;
         $(
             riscv::write_function_reg!($array[i] as u64 => $reg);
-            i = i + 1;
+            i += 1;
         )+
     }
 }
@@ -75,7 +75,7 @@ macro_rules! load_registers_into_array {
         $(
             riscv::read_function_reg!( $reg => temp);
             $array[i] = temp;
-            i = i + 1;
+            i += 1;
         )+
     }
 }

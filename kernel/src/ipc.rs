@@ -1,8 +1,5 @@
 use crate::{
-    hardware::{
-        binary_struct::BinaryStruct,
-        pcb::{self, *},
-    },
+    hardware::{binary_struct::BinaryStruct, stack_image},
     macros::print,
     sys::{process::Proc, scheduler, state::Reason},
 };
@@ -12,7 +9,7 @@ static mut IPC_TABLE: [u64; 64] = [0; 64];
 
 pub unsafe fn try_exchange_all(receiving_prog: Proc) {
     let receiving_id = receiving_prog.id() as usize;
-    if IPC_TABLE[receiving_id] == 0 as u64 {
+    if IPC_TABLE[receiving_id] == 0 {
         scheduler::schedule();
         // the receiver expected nothing
         return;
@@ -44,9 +41,7 @@ pub unsafe fn try_exchange(sending_prog: Proc, receiving_prog: Proc) {
     let sender_bit_set = bit.is_set(sending_prog.id() as usize);
 
     //TODO sending_block && (receiving_block ||receiving_block_all ) &&sender_bit_set
-    if (sending_block && receiving_block && sender_bit_set)
-        || (sending_block && receiving_block_all && sender_bit_set)
-    {
+    if sending_block && sender_bit_set && (receiving_block || receiving_block_all) {
         print!(
             "\n{string:<15}Exchange Message from {sender} to {receiver}!",
             string = "[IPC]",
@@ -64,7 +59,7 @@ unsafe fn send_ipc(sending_prog: Proc, receiving_prog: Proc) {
     // read the message from the sending Process and write it to the receiver Process
     let snd_sp = sending_prog._sp();
     let rcv_sp = receiving_prog._sp();
-    pcb::copy_ipc_regs_img(snd_sp, rcv_sp);
+    stack_image::copy_ipc_regs_img(snd_sp, rcv_sp);
 }
 
 pub fn set_sending_ipc_block(sending_prog: Proc, receiving_id: usize) {

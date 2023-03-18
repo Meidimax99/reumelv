@@ -1,7 +1,7 @@
 use crate::macros::print;
 
 use super::{scheduler, state::*};
-#[derive(PartialEq, Clone, Copy)]
+#[derive(PartialEq, Eq, Clone, Copy)]
 pub struct Proc {
     pub idx: usize,
     pub id: usize,
@@ -94,7 +94,7 @@ impl ProcessData {
     }
 }
 
-#[derive(PartialEq, Clone, Copy)]
+#[derive(PartialEq, Eq, Clone, Copy)]
 pub struct InitProcState {
     pub init_mepc: usize,
     pub pmp_idx: usize,

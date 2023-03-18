@@ -41,16 +41,16 @@ pub enum Register {
 }
 #[repr(C)]
 //Process Control Block
-pub struct PCB {
+pub struct Stack_Image {
     mapping: MemoryMapping<[usize; 32]>,
     state: [usize; 32],
 }
 
-impl PCB {
+impl Stack_Image {
     pub unsafe fn new(sp: usize) -> Self {
         let mem_stack = MemoryMapping::new(sp);
         let stack = mem_stack.read();
-        PCB {
+        Stack_Image {
             mapping: mem_stack,
             state: stack,
         }

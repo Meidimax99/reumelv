@@ -8,16 +8,12 @@ use user_shared::{
     traits::Print,
 };
 
-const OUT_FMT: &str = "\n[Process 0]    ";
-const REC: &str = "Receive:\t";
-const SND: &str = "Send:\t";
-
 #[no_mangle]
 extern "C" fn main() {
     let mut value = 0;
 
     loop {
-        value = value + 1;
+        value += 1;
         let msg = Message::from_generic(value);
         msg.write();
 

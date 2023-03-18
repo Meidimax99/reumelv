@@ -55,7 +55,7 @@ where
         if let Some(bit) = Self::transform_bit(bit) {
             return self.0 & T::one() << bit != T::zero();
         }
-        return false;
+        false
     }
 
     /// Sets the bit at the position [bit] depending on the value [set].
