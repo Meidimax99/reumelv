@@ -8,7 +8,7 @@ impl<T> MemoryMapping<T> {
         }
     }
     pub unsafe fn read(&self) -> T {
-        return self.val.read_volatile();
+        self.val.read_volatile()
     }
     pub unsafe fn write(&mut self, val: T) {
         self.val.write_volatile(val);

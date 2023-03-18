@@ -4,6 +4,7 @@
 mod asm;
 mod exception_handler;
 mod hardware;
+mod ipc;
 mod macros;
 mod panic_handler;
 mod setup;

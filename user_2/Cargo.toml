@@ -1,6 +1,5 @@
 [package]
-#todo change authors
-authors = ["Timo Renk <timo.renk@stud.uni-bamberg.de>"]
+authors = ["Timo Renk <timo.renk@stud.uni-bamberg.de>", "Fabian Adam <fabian-david.adam@stud.uni-bamberg.de>","Leonhard Kohn <leonhard.kohn@stud.uni-bamberg.de>","Tobias Treuheit <tobias-niklas.treuheit@stud.uni-bamberg.de>","Max Meidinger <max_meidinger@stud.uni-bamberg.de>"]
 edition = "2021"
 name = "user_2"
 version = "0.1.0"

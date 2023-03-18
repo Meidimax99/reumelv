@@ -1,31 +1,38 @@
 #![no_std]
 #![no_main]
 
-use sys_call as sys;
-use user_shared::{macros::sys_print as print, traits::Print, *};
+use user_shared::{
+    message::*,
+    sys_call::{sys_ipc_receive_all, sys_ipc_send},
+    sys_print,
+    traits::Print,
+};
 
 #[no_mangle]
 extern "C" fn main() {
+    let mut value = 0;
+
     loop {
-        for i in 0..1000000{
-            if i == 999999 {
-                let string: &str = "\nUser 1\n";
-                let number: usize = 1234567890;
-                "\n".print();
-                number.print();
-                "\n".print();
-                string.print();
-                "\nUser 1 ist fertig\n".print();
-                sys_print!("Macro");
-                sys_print!("786");
-                "\n".print();
-                println!("Hello World");
-                println!(1024);
-                print!("Finishing\n");
-                print!('c');
-                sys::task_new(0x80200000);
-                print!("Returned\n");
-            }
+        value += 1;
+        let msg = Message::from_generic(value);
+        msg.write();
+
+        "\n[Process 0]    Start sending!".print();
+
+        sys_ipc_send(1);
+        "\n[Process 0]    Finish sending!".print();
+        unsafe {
+            "\n[Process 0]    Start receiving!".print();
+            value = sys_ipc_receive_all(1).content;
+            sys_print!("\n[Process 0]    Receive value: ", value);
+
+            "\n[Process 0]    Finish receiving!".print();
         }
+
+        //Timer Interrupt
     }
+
+    /* loop {
+        "1\n".print();
+    } */
 }

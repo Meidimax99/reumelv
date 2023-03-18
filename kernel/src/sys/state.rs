@@ -1,10 +1,14 @@
-#[derive(Clone, Copy, PartialEq, Debug)]
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub enum State {
     Rdy,
     Inactive,
-    _Blocked(Reason),
+    Blocked(Reason, usize),
     Starting,
 }
 
-#[derive(Clone, Copy, PartialEq, Debug)]
-pub enum Reason {}
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum Reason {
+    SendingIpc,
+    ReceiveIpc,
+    ReceiveIpcAll,
+}

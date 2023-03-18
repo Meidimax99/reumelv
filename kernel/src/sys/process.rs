@@ -1,5 +1,7 @@
+use crate::macros::print;
+
 use super::{scheduler, state::*};
-#[derive(PartialEq, Clone, Copy)]
+#[derive(PartialEq, Eq, Clone, Copy)]
 pub struct Proc {
     pub idx: usize,
     pub id: usize,
@@ -20,20 +22,43 @@ impl Proc {
             self.id, self.idx
         );
     }
-    pub fn _set_rdy(&self) {
+    pub fn set_rdy(&self) {
         unsafe {
+            print!(
+                "\n{string:<15}Set Process {proc} ready!",
+                string = "[Process]",
+                proc = self.idx
+            );
             self.get().state = State::Rdy;
         }
     }
     /// If blocked, returns the reason. Otherwise None.
-    pub fn _is_blocked(&self, reason: Reason) -> bool {
-        unsafe { self.get().state == State::_Blocked(reason) }
-    }
-    pub fn _set_blocked(&self, reason: Reason) {
+    ///
+    /// TODO Experimental
+    pub fn is_blocked(&self, reason: Reason) -> bool {
         unsafe {
-            self.get().state = State::_Blocked(reason);
+            if let State::Blocked(rsn, _) = self.get().state {
+                return reason == rsn;
+            }
+            false
         }
     }
+
+    pub fn is_blocked_of(&self, reason: Reason, number: usize) -> bool {
+        unsafe { self.get().state == State::Blocked(reason, number) }
+    }
+
+    pub fn set_blocked(&self, reason: Reason, number: usize) {
+        unsafe {
+            print!(
+                "\n{string:<15}Set Process {proc} blocked!",
+                string = "[Process]",
+                proc = self.idx
+            );
+            self.get().state = State::Blocked(reason, number);
+        }
+    }
+
     pub fn increment_mepc(&self) {
         unsafe {
             self.get().mepc += 4;
@@ -69,7 +94,7 @@ impl ProcessData {
     }
 }
 
-#[derive(PartialEq, Clone, Copy)]
+#[derive(PartialEq, Eq, Clone, Copy)]
 pub struct InitProcState {
     pub init_mepc: usize,
     pub pmp_idx: usize,
