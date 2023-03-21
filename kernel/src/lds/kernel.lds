@@ -21,7 +21,7 @@ PHDRS {         /*Instructs the linker to only load the specified program header
   - bss
   Contains both uninitialized static variables and static constants
 */
-                          /*0x80000000 is the start of the DRAM*/
+                          /*0x80000000 seems to be the start of the DRAM*/
 SECTIONS {                /*Specifies how the sections are merged and where they are placed*/ 
   . = 0x80000000;         /*Sections will be copied to this adress, '.' represents the location counter and is initially set to 0x0*/
   .text : {

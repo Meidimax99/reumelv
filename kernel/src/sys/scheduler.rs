@@ -1,15 +1,10 @@
 use super::{process::*, state::*};
-use crate::{
-    hardware::{clint, pmp},
-    macros::print,
-};
+use crate::hardware::{clint, pmp};
 use riscv_utils;
 
-///Index of the currently running process in he PROCS array
 static mut CUR_PROG_IDX: usize = 0;
 static mut ID_SEED: u16 = 0xACE1;
 const NONE: Option<ProcessData> = None;
-/// Array of process data, typically indexed with the proc idx
 pub static mut PROCS: [Option<ProcessData>; 64] = [NONE; 64];
 
 unsafe fn boot_proc(proc: Proc) {
@@ -34,15 +29,10 @@ pub unsafe fn start_tau() {
         proc.init_proc_state.init_mepc = 0x80100000;
         proc.state = State::Starting;
     }
-    if let Some(proc) = &mut PROCS[1] {
-        proc.init_proc_state.init_mepc = 0x80200000;
-        proc.state = State::Starting;
-    }
     boot_proc(cur());
 }
 
 //Fills the PROCS array with inactive programs
-#[allow(clippy::needless_range_loop)]
 unsafe fn init_procs() {
     for idx in 0..PROCS.len() {
         PROCS[idx] = Some(ProcessData::new(idx, InitProcState::new(idx)));
@@ -56,7 +46,7 @@ unsafe fn init_procs() {
 // See also [get_inact_proc].
 pub fn task_new(mepc: usize) -> usize {
     let info = get_inact_proc();
-    if info == (0, 0) {
+    if info == (0,0) {
         return 0;
     }
     unsafe {
@@ -69,10 +59,9 @@ pub fn task_new(mepc: usize) -> usize {
         CUR_PROG_IDX = info.1;
         boot_proc(cur());
     }
-    info.0
+    return info.0;
 }
 // returns a tuple (id, idx) of the next inactive process, returns 0 if no inactive process is found. (0 because tau never quits)
-#[allow(clippy::needless_range_loop)]
 fn get_inact_proc() -> (usize, usize) {
     unsafe {
         for idx in 0..PROCS.len() {
@@ -84,7 +73,7 @@ fn get_inact_proc() -> (usize, usize) {
             }
         }
     };
-    (0, 0)
+    return (0, 0);
 }
 
 unsafe fn gen_id() {
@@ -94,11 +83,11 @@ unsafe fn gen_id() {
 }
 
 fn get_pmpidx(mepc: usize) -> usize {
-    ((mepc - 0x80000000) / 0x00100000) - 1
+    return ((mepc - 0x80000000) / 0x00100000) - 1;
 }
 
-pub fn schedule() {
-    switch(next().expect("No next program"));
+pub fn scheduler() {
+    switch(next().expect("No next programm"));
 }
 
 /// Returns the current user prog.
@@ -126,7 +115,7 @@ fn next() -> Option<Proc> {
             }
         }
     }
-    None
+    return None;
 }
 /// Switches the program.
 fn switch(prog: Proc) {
@@ -135,11 +124,6 @@ fn switch(prog: Proc) {
         match prog_data.state {
             State::Rdy => {
                 CUR_PROG_IDX = prog.idx;
-                print!(
-                    "\n{string:<15}Switch to Process {proc}!",
-                    string = "[Sched]",
-                    proc = CUR_PROG_IDX
-                );
                 pmp::switch_prog_pmp(prog_data.init_proc_state.pmp_idx);
             }
             State::Starting => {
@@ -151,7 +135,7 @@ fn switch(prog: Proc) {
                     prog_data.id, prog_data.state
                 )
             }
-            State::Blocked(_, _) => {
+            State::_Blocked(_) => {
                 panic!(
                     "Tried to switch to user proc: {:?}, with state: {:?}",
                     prog_data.id, prog_data.state
@@ -159,20 +143,4 @@ fn switch(prog: Proc) {
             }
         }
     }
-}
-
-//Get a process by its id
-#[allow(clippy::needless_range_loop)]
-pub unsafe fn get_process(process_id: usize) -> Proc {
-    for i in 0..PROCS.len() {
-        if let Some(process) = &mut PROCS[i] {
-            if process.id == process_id {
-                return Proc {
-                    idx: i,
-                    id: process.id,
-                };
-            }
-        }
-    }
-    panic!("The Process dose not exist!");
 }

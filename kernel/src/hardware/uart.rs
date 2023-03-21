@@ -35,7 +35,7 @@ pub unsafe fn init() {
 
 /// Only call if an interrupt happened. Returns the char.
 pub unsafe fn read_char() -> char {
-    UART.get_char()
+    return UART.get_char();
 }
 
 /// print a str over uart on the terminal
@@ -54,7 +54,6 @@ pub unsafe fn get_uart() -> &'static mut UART {
 }
 
 /// implementation for print_char, get_char
-#[allow(clippy::upper_case_acronyms)]
 pub struct UART {
     reg: UartRegister,
 }
@@ -78,7 +77,9 @@ impl UART {
     unsafe fn get_char(&mut self) -> char {
         let lsr = &self.reg.lsr;
         while !lsr.read().is_set(0) {}
-        self.reg.rbr_thr_dll.read() as char
+        let output = self.reg.rbr_thr_dll.read() as char;
+        //print_char(output);
+        return output;
     }
 }
 

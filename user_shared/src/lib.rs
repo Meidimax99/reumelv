@@ -7,4 +7,3 @@ pub mod sys_call;
 pub mod traits;
 #[macro_use]
 pub mod macros;
-pub mod message;
