@@ -63,10 +63,12 @@ pub(crate) use enum_matching;
 #[allow(unused)]
 macro_rules! log {
     ($($arg:tt)*) => {
+        #[cfg(debug)] {
         use core::fmt::Write;
-        #[cfg(debug)] write!(crate::hardware::uart::get_uart(),"[{string:<30}:{num:<4}]", string = file!(), num = line!()).ok();
-        #[cfg(debug)] write!(crate::hardware::uart::get_uart(), $($arg)*).ok();
-        #[cfg(debug)] write!(crate::hardware::uart::get_uart(), "\n").ok();
+        write!(crate::hardware::uart::get_uart(),"[{string}:{num}]", string = file!(), num = line!()).ok();
+        write!(crate::hardware::uart::get_uart(), $($arg)*).ok();
+        write!(crate::hardware::uart::get_uart(), "\n").ok();
+        }
     }
 
 }
