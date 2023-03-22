@@ -40,8 +40,7 @@ pub unsafe fn try_exchange(sending_prog: Proc, receiving_prog: Proc) {
     //TODO sending_block && (receiving_block ||receiving_block_all ) &&sender_bit_set
     if sending_block && sender_bit_set && (receiving_block || receiving_block_all) {
         log!(
-            "\n{string:<15}Exchange Message from {sender} to {receiver}!",
-            string = "[IPC]",
+            "Exchange Message from {sender} to {receiver}!",
             sender = sender_id,
             receiver = receiver_id
         );

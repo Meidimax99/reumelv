@@ -24,11 +24,7 @@ impl Proc {
     }
     pub fn set_rdy(&self) {
         unsafe {
-            log!(
-                "\n{string:<15}Set Process {proc} ready!",
-                string = "[Process]",
-                proc = self.idx
-            );
+            log!("Set Process {proc} ready!", proc = self.idx);
             self.get().state = State::Rdy;
         }
     }
@@ -50,11 +46,7 @@ impl Proc {
 
     pub fn set_blocked(&self, reason: Reason, number: usize) {
         unsafe {
-            log!(
-                "\n{string:<15}Set Process {proc} blocked!",
-                string = "[Process]",
-                proc = self.idx
-            );
+            log!("Set Process {proc} blocked!", proc = self.idx);
             self.get().state = State::Blocked(reason, number);
         }
     }

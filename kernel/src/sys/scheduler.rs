@@ -139,11 +139,7 @@ fn switch(prog: Proc) {
         match prog_data.state {
             State::Rdy => {
                 CUR_PROG_IDX = prog.idx;
-                log!(
-                    "\n{string:<15}Switch to Process {proc}!",
-                    string = "[Sched]",
-                    proc = CUR_PROG_IDX
-                );
+                log!("Switch to Process {proc}!", proc = CUR_PROG_IDX);
                 pmp::switch_prog_pmp(prog_data.init_proc_state.pmp_idx);
             }
             State::Starting => {

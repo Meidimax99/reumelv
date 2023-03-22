@@ -29,7 +29,7 @@ unsafe extern "C" fn exception_handler(mepc: usize, mcause: usize, sp: usize) ->
 unsafe fn handle_interrupt(mcause: usize) {
     match mcause {
         7 => {
-            log!("\n{string:<15}Timer Interrupt!", string = "[Exc_Handler]");
+            log!("Timer Interrupt!");
             // Timer interrupt
             scheduler::schedule();
             clint::set_time_cmp();
@@ -39,7 +39,7 @@ unsafe fn handle_interrupt(mcause: usize) {
             let irq = plic::read_claim();
             match irq {
                 plic::IRQ::Uart => {
-                    log!("{}", uart::read_char());
+                    log!("Read Char:{}", uart::read_char());
                 }
             }
             plic::write_complete(irq);
