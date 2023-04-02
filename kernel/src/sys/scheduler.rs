@@ -17,7 +17,7 @@ unsafe fn boot_proc(proc: Proc) {
     proc_data.state = State::Rdy;
     switch(proc);
     riscv_utils::write_machine_reg!(proc_data.init_proc_state.init_mepc => "mepc");
-    crate::println!("\n\n## Starting {:?} ##", proc_data.id);
+    crate::log!("Starting Process {:?}", proc_data.id);
     clint::set_time_cmp();
     core::arch::asm!("mret");
 }

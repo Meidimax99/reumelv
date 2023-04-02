@@ -105,6 +105,10 @@ unsafe fn sys_ipc_send(receiver_id: usize) {
     let receiver_prog: Proc = get_process(receiver_id);
     let sender_prog: Proc = cur();
     set_sending_ipc_block(sender_prog, receiver_id);
+    //TODO Instantly exchanging when sending currently introduces the problem that the queue might be skipped
+    //Solutions:    -   Block after trying to exchange and change try exchange function to not require the part of the exchange to be blocked, since it is running anyways
+    //              -   Only exchange on the receiving side (This will remove the advantage that messages can be exchanged instantly, but makes it easier to handle ddos)
+    //              -   Only add to queue after exchange failed
     try_exchange(sender_prog, receiver_prog);
 }
 
@@ -117,6 +121,7 @@ unsafe fn sys_ipc_receive(sender_id: usize) {
 
 unsafe fn sys_ipc_receive_any() -> Option<usize> {
     let receiver_prog: Proc = cur();
+    //TODO This instantly blocks the receiving process, which is useful because it is checked for in try_exchange_all, but really adds additional weight since this goes through the scheduler
     set_receiver_ipc_block_all(receiver_prog);
     try_exchange_any(receiver_prog)
 }

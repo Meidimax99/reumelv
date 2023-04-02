@@ -7,7 +7,7 @@ use crate::{
 // every word is received Process
 // IPC Table
 static mut IPC_TABLE: [u64; 64] = [0; 64];
-static mut MSG_QUEUES: [ByteQueue<64usize>; 64] = [ByteQueue::new(); 64];
+static mut MSG_QUEUES: [ByteQueue<64usize>; 64] = [ByteQueue::new(); 64]; //Need Constexpr in order to create static generic Queues instead of specific bytequeues
 
 pub unsafe fn try_exchange_any(receiving_prog: Proc) -> Option<usize> {
     let receiving_id = receiving_prog.id() as usize;
@@ -47,6 +47,7 @@ pub unsafe fn try_exchange(sending_prog: Proc, receiving_prog: Proc) {
         send_ipc(sending_prog, receiving_prog);
         clear_ipc_block(sending_prog, receiving_prog);
     } else {
+        MSG_QUEUES[receiver_id].push(sender_id as u8);
         scheduler::schedule();
     }
 }
@@ -66,7 +67,8 @@ pub fn set_sending_ipc_block(sending_prog: Proc, receiving_id: usize) {
         IPC_TABLE[receiving_id] = word.get();
         // set the sending process to blocked
         sending_prog.set_blocked(Reason::SendingIpc, receiving_id);
-        MSG_QUEUES[receiving_id].push(sending_prog.id as u8);
+        //TODO commented out to try solution #3 from ipc exchange
+        //MSG_QUEUES[receiving_id].push(sending_prog.id as u8);
     }
 }
 

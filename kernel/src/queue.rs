@@ -1,3 +1,6 @@
+use crate::macros::log;
+
+#[derive(Debug, Copy, Clone)]
 pub struct Queue<T: Default + Copy + Sized, const N: usize> {
     index_in: usize,
     index_out: usize,
@@ -15,15 +18,16 @@ impl<T: Default + Copy + Sized, const N: usize> Queue<T, N> {
         }
     }
     pub fn push(&mut self, elem: T) {
-        if !self.isEmpty() && self.index_in == self.index_out {
+        if !self.is_empty() && self.index_in == self.index_out {
             panic!("Queue is full, cant push!");
         } else {
             self.arr[self.index_in] = elem;
-            self.count = (self.count + 1) % N;
+            self.index_in = (self.index_in + 1) % N;
+            self.count += 1;
         }
     }
     pub fn pop(&mut self) -> Result<T, &'static str> {
-        if self.isEmpty() {
+        if self.is_empty() {
             Err("Can't pop, queue is empty")
         } else {
             let elem = self.arr[self.index_out];
@@ -32,10 +36,10 @@ impl<T: Default + Copy + Sized, const N: usize> Queue<T, N> {
             Ok(elem)
         }
     }
-    pub fn isEmpty(&self) -> bool {
+    pub fn is_empty(&self) -> bool {
         self.count == 0
     }
-    pub fn spaceLeft(&self) -> usize {
+    pub fn space_left(&self) -> usize {
         N - self.count
     }
 }
@@ -60,28 +64,34 @@ impl<const N: usize> ByteQueue<N> {
         }
     }
     pub fn push(&mut self, elem: u8) {
-        if !self.isEmpty() && self.index_in == self.index_out {
+        if !self.is_empty() && self.index_in == self.index_out {
             panic!("Queue is full, cant push!");
         } else {
+            unsafe {
+                log!("-------------------------------Push to Queue!");
+            }
             self.arr[self.index_in] = elem;
             self.index_in = (self.index_in + 1) % N;
             self.count += 1;
         }
     }
     pub fn pop(&mut self) -> Result<u8, &'static str> {
-        if self.isEmpty() {
+        if self.is_empty() {
             Err("Can't pop, queue is empty")
         } else {
+            unsafe {
+                log!("-------------------------------Pop from Queue!");
+            }
             let elem = self.arr[self.index_out];
             self.index_out = (self.index_out + 1) % N;
             self.count -= 1;
             Ok(elem)
         }
     }
-    pub fn isEmpty(&self) -> bool {
+    pub fn is_empty(&self) -> bool {
         self.count == 0
     }
-    pub fn spaceLeft(&self) -> usize {
+    pub fn space_left(&self) -> usize {
         N - self.count
     }
 }
