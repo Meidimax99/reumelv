@@ -46,7 +46,7 @@ impl<T: Default + Copy + Sized, const N: usize> Queue<T, N> {
 
 //Generic and const doesnt mix yet as const traits dont exist, so here is a ByteQueue for IPC
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Debug)]
 pub struct ByteQueue<const N: usize> {
     index_in: usize,
     index_out: usize,
@@ -67,9 +67,6 @@ impl<const N: usize> ByteQueue<N> {
         if !self.is_empty() && self.index_in == self.index_out {
             panic!("Queue is full, cant push!");
         } else {
-            unsafe {
-                log!("-------------------------------Push to Queue!");
-            }
             self.arr[self.index_in] = elem;
             self.index_in = (self.index_in + 1) % N;
             self.count += 1;
@@ -79,9 +76,6 @@ impl<const N: usize> ByteQueue<N> {
         if self.is_empty() {
             Err("Can't pop, queue is empty")
         } else {
-            unsafe {
-                log!("-------------------------------Pop from Queue!");
-            }
             let elem = self.arr[self.index_out];
             self.index_out = (self.index_out + 1) % N;
             self.count -= 1;

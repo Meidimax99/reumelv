@@ -13,6 +13,7 @@ use riscv_utils::*;
 
 #[no_mangle]
 unsafe extern "C" fn exception_handler(mepc: usize, mcause: usize, sp: usize) -> usize {
+    log!("Enter exception handler");
     dispatcher::save_cur_prog(mepc, sp);
     let mut mcause = BinaryStruct::from(mcause);
     let interrupt = mcause.is_set(63);
@@ -27,6 +28,7 @@ unsafe extern "C" fn exception_handler(mepc: usize, mcause: usize, sp: usize) ->
 
 //https://people.eecs.berkeley.edu/~krste/papers/riscv-privileged-v1.9.pdf -- Page 34
 unsafe fn handle_interrupt(mcause: usize) {
+    log!("Enter interrupt handler");
     match mcause {
         7 => {
             log!("Timer Interrupt!");
@@ -51,6 +53,7 @@ unsafe fn handle_interrupt(mcause: usize) {
 }
 
 unsafe fn handle_exception(mcause: usize, mepc: usize, sp: usize) {
+    log!("Handle exception");
     match mcause {
         1 => {
             // Instruction access fault
@@ -87,6 +90,7 @@ unsafe fn handle_exception(mcause: usize, mepc: usize, sp: usize) {
             );
         }
         8 => {
+            log!("Handle Ecall from user space");
             // Ecall from user-mode
             let mut image = Stack_Image::new(sp);
             let number = image.get(Register::a7);

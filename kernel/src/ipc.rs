@@ -1,3 +1,5 @@
+use core::borrow::{Borrow, BorrowMut};
+
 use crate::{
     hardware::{binary_struct::BinaryStruct, stack_image},
     macros::log,
@@ -11,7 +13,9 @@ static mut MSG_QUEUES: [ByteQueue<64usize>; 64] = [ByteQueue::new(); 64]; //Need
 
 pub unsafe fn try_exchange_any(receiving_prog: Proc) -> Option<usize> {
     let receiving_id = receiving_prog.id() as usize;
+    log!("Trying to receive any to {}", receiving_id);
     if IPC_TABLE[receiving_id] == 0 {
+        log!("No messages for {}", receiving_id);
         scheduler::schedule();
         // the receiver expected nothing
         return None;
@@ -26,6 +30,11 @@ pub unsafe fn try_exchange_any(receiving_prog: Proc) -> Option<usize> {
 pub unsafe fn try_exchange(sending_prog: Proc, receiving_prog: Proc) {
     let sender_id = sending_prog.id() as usize;
     let receiver_id = receiving_prog.id() as usize;
+    log!(
+        "Trying to exchange message from {} to {}",
+        sender_id,
+        receiver_id
+    );
     // word is one line from the ipc_table
     let word = IPC_TABLE[receiving_prog.id() as usize];
     // bit is a binary struct from word
@@ -47,6 +56,12 @@ pub unsafe fn try_exchange(sending_prog: Proc, receiving_prog: Proc) {
         send_ipc(sending_prog, receiving_prog);
         clear_ipc_block(sending_prog, receiving_prog);
     } else {
+        log!(
+            "Process {} isn't receiving, pushing {} to queue for process {}",
+            receiver_id,
+            sender_id,
+            receiver_id
+        );
         MSG_QUEUES[receiver_id].push(sender_id as u8);
         scheduler::schedule();
     }
@@ -56,6 +71,11 @@ unsafe fn send_ipc(sending_prog: Proc, receiving_prog: Proc) {
     // read the message from the sending Process and write it to the receiver Process
     let snd_sp = sending_prog._sp();
     let rcv_sp = receiving_prog._sp();
+    log!(
+        "Copy stack images from {} to {}",
+        sending_prog.id,
+        receiving_prog.id
+    );
     stack_image::copy_ipc_regs_img(snd_sp, rcv_sp);
 }
 
