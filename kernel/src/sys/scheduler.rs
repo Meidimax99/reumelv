@@ -132,6 +132,8 @@ fn next() -> Option<Proc> {
     }
     None
 }
+
+const color_codes: [u8; 4] = [92, 93, 94, 95];
 /// Switches the program.
 fn switch(prog: Proc) {
     unsafe {
@@ -139,7 +141,11 @@ fn switch(prog: Proc) {
         match prog_data.state {
             State::Rdy => {
                 CUR_PROG_IDX = prog.idx;
-                log!("Switch to Process {proc}!", proc = CUR_PROG_IDX);
+                let color = color_codes[CUR_PROG_IDX % color_codes.len()];
+                log!(
+                    "\x1B[{color}m Switch to Process {proc}!",
+                    proc = CUR_PROG_IDX
+                );
                 pmp::switch_prog_pmp(prog_data.init_proc_state.pmp_idx);
             }
             State::Starting => {

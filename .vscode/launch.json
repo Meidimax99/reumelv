@@ -49,8 +49,7 @@
                     "description": "Load user 2 symbols",
                     "text": "add-symbol-file ./target/riscv64gc-unknown-none-elf/debug/user_2 0x80200000",
                     "ignoreFailures": false
-                }
-                ,
+                },
                 {
                     "description": "Restore uart server",
                     "text": "restore ./target/riscv64gc-unknown-none-elf/debug/uart.bin binary 0x80300000",

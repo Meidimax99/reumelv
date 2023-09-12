@@ -1,176 +1,176 @@
 {
-    "version": "2.0.0",
-    "tasks": [
-        {
-            "label": "Debug kernel",
-            "type": "shell",
-            "command": "qemu-system-riscv64",
-            "options": {
-                "cwd": "${workspaceFolder}"
-            },
-            "args": [
-                "-nographic",
-                "-machine",
-                "virt",
-                "-smp",
-                "1",
-                "-bios",
-                "none",
-                "-kernel",
-                "./target/riscv64gc-unknown-none-elf/debug/riscv_rust_os.bin",
-                "-s",
-                "-S"
-            ],
-            "dependsOn": [
-                "Build kernel"
-            ],
-            "dependsOrder": "sequence",
-            "problemMatcher": [
-                {
-                    "pattern": [
-                        {
-                            "regexp": ".",
-                            "file": 1,
-                            "line": 1,
-                            "column": 1,
-                            "message": 1
-                        }
-                    ]
-                }
-            ],
-            "group": {
-                "kind": "test",
-                "isDefault": true
-            }
-        },
-        {
-            "label": "Build all and Debug",
-            "dependsOn": [
-               "Build user binaries",
-                "Build kernel",
-                "Debug kernel"
-            ],
-            "dependsOrder": "sequence",
-            "group": {
-                "kind": "test",
-                "isDefault": true
-            }
-        },
-        {
-            "label": "Build kernel",
-            "type": "shell",
-            "command": "cargo",
-            "problemMatcher": [],
-            "options": {
-                "cwd": "${workspaceFolder}"
-            },
-            "args": [
-                "objcopy",
-                "--bin",
-                "riscv_rust_os",
-                "--",
-                "-O",
-                "binary",
-                "./target/riscv64gc-unknown-none-elf/debug/riscv_rust_os.bin"
-            ]
-        },
-        {
-            "label": "Build user_1",
-            "type": "shell",
-            "command": "cargo",
-            "problemMatcher": [],
-            "options": {
-                "cwd": "${workspaceFolder}"
-            },
-            "args": [
-                "objcopy",
-                "--bin",
-                "user_1",
-                "--",
-                "-O",
-                "binary",
-                "./target/riscv64gc-unknown-none-elf/debug/user_1.bin"
-            ]
-        },
-        {
-            "label": "Build user_2",
-            "type": "shell",
-            "command": "cargo",
-            "problemMatcher": [],
-            "options": {
-                "cwd": "${workspaceFolder}"
-            },
-            "args": [
-                "objcopy",
-                "--bin",
-                "user_2",
-                "--",
-                "-O",
-                "binary",
-                "./target/riscv64gc-unknown-none-elf/debug/user_2.bin"
-            ]
-        },
-        {
-            "label": "Build uart server",
-            "type": "shell",
-            "command": "cargo",
-            "problemMatcher": [],
-            "options": {
-                "cwd": "${workspaceFolder}"
-            },
-            "args": [
-                "objcopy",
-                "--bin",
-                "uart",
-                "--",
-                "-O",
-                "binary",
-                "./target/riscv64gc-unknown-none-elf/debug/uart.bin"
-            ]
-        },
-        {
-            "label": "Build user binaries",
-            "dependsOn": [
-                "Build user_1",
-                "Build user_2",
-                "Build uart server"
-            ],
-            "problemMatcher": [
-                "$rustc"
-            ]
-        },
-        {
-            "label": "Build",
-            "type": "cargo",
-            "command": "build",
-            "problemMatcher": [
-                "$rustc"
-            ],
-            "group": "build",
-            "presentation": {
-                "echo": true,
-                "reveal": "always",
-                "focus": true,
-                "panel": "shared",
-                "showReuseMessage": true,
-                "clear": true
-            },
-            "options": {
-                "cwd": "${workspaceFolder}"
-            }
-        },
-        {
-            "label": "Terminate All",
-            "command": "echo ${input:terminate}",
-            "type": "shell"
-        }
-    ],
-    "inputs": [
-        {
-            "id": "terminate",
-            "type": "command",
-            "command": "workbench.action.tasks.terminate",
-            "args": "terminateAll"
-        }
-    ]
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Debug kernel",
+			"type": "shell",
+			"command": "qemu-system-riscv64",
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"args": [
+				"-nographic",
+				"-machine",
+				"virt",
+				"-smp",
+				"1",
+				"-bios",
+				"none",
+				"-kernel",
+				"./target/riscv64gc-unknown-none-elf/debug/riscv_rust_os.bin",
+				"-s",
+				"-S"
+			],
+			"dependsOn": [
+				"Build kernel"
+			],
+			"dependsOrder": "sequence",
+			"problemMatcher": [
+				{
+					"pattern": [
+						{
+							"regexp": ".",
+							"file": 1,
+							"line": 1,
+							"column": 1,
+							"message": 1
+						}
+					]
+				}
+			],
+			"group": {
+				"kind": "test",
+				"isDefault": true
+			}
+		},
+		{
+			"label": "Build all and Debug",
+			"dependsOn": [
+				"Build user binaries",
+				"Build kernel",
+				"Debug kernel"
+			],
+			"dependsOrder": "sequence",
+			"group": {
+				"kind": "test",
+				"isDefault": true
+			}
+		},
+		{
+			"label": "Build kernel",
+			"type": "shell",
+			"command": "cargo",
+			"problemMatcher": [],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"args": [
+				"objcopy",
+				"--bin",
+				"riscv_rust_os",
+				"--",
+				"-O",
+				"binary",
+				"./target/riscv64gc-unknown-none-elf/debug/riscv_rust_os.bin"
+			]
+		},
+		{
+			"label": "Build user_1",
+			"type": "shell",
+			"command": "cargo",
+			"problemMatcher": [],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"args": [
+				"objcopy",
+				"--bin",
+				"user_1",
+				"--",
+				"-O",
+				"binary",
+				"./target/riscv64gc-unknown-none-elf/debug/user_1.bin"
+			]
+		},
+		{
+			"label": "Build user_2",
+			"type": "shell",
+			"command": "cargo",
+			"problemMatcher": [],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"args": [
+				"objcopy",
+				"--bin",
+				"user_2",
+				"--",
+				"-O",
+				"binary",
+				"./target/riscv64gc-unknown-none-elf/debug/user_2.bin"
+			]
+		},
+		{
+			"label": "Build uart server",
+			"type": "shell",
+			"command": "cargo",
+			"problemMatcher": [],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"args": [
+				"objcopy",
+				"--bin",
+				"uart",
+				"--",
+				"-O",
+				"binary",
+				"./target/riscv64gc-unknown-none-elf/debug/uart.bin"
+			]
+		},
+		{
+			"label": "Build user binaries",
+			"dependsOn": [
+				"Build user_1",
+				"Build user_2",
+				"Build uart server"
+			],
+			"problemMatcher": [
+				"$rustc"
+			]
+		},
+		{
+			"label": "Build",
+			"type": "cargo",
+			"command": "build",
+			"problemMatcher": [
+				"$rustc"
+			],
+			"group": "build",
+			"presentation": {
+				"echo": true,
+				"reveal": "always",
+				"focus": true,
+				"panel": "shared",
+				"showReuseMessage": true,
+				"clear": true
+			},
+			"options": {
+				"cwd": "${workspaceFolder}"
+			}
+		},
+		{
+			"label": "Terminate All",
+			"command": "echo ${input:terminate}",
+			"type": "shell"
+		}
+	],
+	"inputs": [
+		{
+			"id": "terminate",
+			"type": "command",
+			"command": "workbench.action.tasks.terminate",
+			"args": "terminateAll"
+		}
+	]
 }
