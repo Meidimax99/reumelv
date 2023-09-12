@@ -1,1 +1,1 @@
-FROM mcr.microsoft.com/devcontainers/base:jammy
+FROM reumelv-dev
