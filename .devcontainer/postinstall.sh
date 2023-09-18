@@ -8,7 +8,7 @@ sudo apt-get install -y cargo
 
 rustup target add riscv64gc-unknown-none-elf
 
-sudo cargo install -y cargo-binutils
+sudo cargo install cargo-binutils
 
 rustup component add llvm-tools-preview
 
