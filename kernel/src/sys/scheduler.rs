@@ -133,7 +133,25 @@ fn next() -> Option<Proc> {
     None
 }
 
-const color_codes: [u8; 4] = [92, 93, 94, 95];
+#[derive(Clone, Copy)]
+enum Colors {
+    Red,
+    Green,
+    Blue,
+    White,
+}
+
+impl Colors {
+    fn value(&self) -> [i32; 3] {
+        match *self {
+            Colors::Red => [255, 0, 0],
+            Colors::Green => [0, 255, 0],
+            Colors::Blue => [0, 0, 255],
+            Colors::White => [255, 255, 255],
+        }
+    }
+}
+const process_colors: [Colors; 4] = [Colors::Red, Colors::Green, Colors::Blue, Colors::White];
 /// Switches the program.
 fn switch(prog: Proc) {
     unsafe {
@@ -141,9 +159,9 @@ fn switch(prog: Proc) {
         match prog_data.state {
             State::Rdy => {
                 CUR_PROG_IDX = prog.idx;
-                let color = color_codes[CUR_PROG_IDX % color_codes.len()];
-                log!(
-                    "\x1B[{color}m Switch to Process {proc}!",
+                let color = process_colors[CUR_PROG_IDX % process_colors.len()];
+                log!( color ;
+                    "Switch to Process {proc}!",
                     proc = CUR_PROG_IDX
                 );
                 pmp::switch_prog_pmp(prog_data.init_proc_state.pmp_idx);

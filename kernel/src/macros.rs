@@ -62,6 +62,26 @@ pub(crate) use enum_matching;
 
 #[allow(unused)]
 macro_rules! log {
+    ($color:ident ; $($format:ident), + ; $($arg:tt)*) => {
+        #[cfg(debug)] {
+        use core::fmt::Write;
+        let colors_arr = $color.value();
+        write!(crate::hardware::uart::get_uart(), "\x1B[38;2;{};{};{}$(;{})m", colors_arr[0], colors_arr[1], colors_arr[2]).ok();
+        write!(crate::hardware::uart::get_uart(),"[{string}:{num}]", string = file!(), num = line!()).ok();
+        write!(crate::hardware::uart::get_uart(), $($arg)*).ok();
+        write!(crate::hardware::uart::get_uart(), "\n").ok();
+        }
+    };
+    ($color:ident ; $($arg:tt)*) => {
+        #[cfg(debug)] {
+        use core::fmt::Write;
+        let colors_arr = $color.value();
+        write!(crate::hardware::uart::get_uart(), "\x1B[38;2;{};{};{}m", colors_arr[0], colors_arr[1], colors_arr[2]).ok();
+        write!(crate::hardware::uart::get_uart(),"[{string}:{num}]", string = file!(), num = line!()).ok();
+        write!(crate::hardware::uart::get_uart(), $($arg)*).ok();
+        write!(crate::hardware::uart::get_uart(), "\n").ok();
+        }
+    };
     ($($arg:tt)*) => {
         #[cfg(debug)] {
         use core::fmt::Write;
@@ -69,7 +89,7 @@ macro_rules! log {
         write!(crate::hardware::uart::get_uart(), $($arg)*).ok();
         write!(crate::hardware::uart::get_uart(), "\n").ok();
         }
-    }
-
+    };
 }
+
 pub(crate) use log;

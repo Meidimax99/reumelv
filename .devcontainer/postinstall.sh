@@ -1,5 +1,5 @@
 #!/bin/sh
-#remove carriage returns ^M  sed -i -e 's/\r$//' ./devcontainer/postinstall.sh
+#remove carriage returns ^M  sed -i -e 's/\r$//' ./.devcontainer/postinstall.sh
 echo "Installing Dependencies..."
 
 sudo apt-get update 
