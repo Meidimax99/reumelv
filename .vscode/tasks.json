@@ -44,6 +44,18 @@
 			}
 		},
 		{
+			"label": "Show Device Tree",
+			"type": "shell",
+			"command": "/bin/bash ./scripts/dump_dtb.sh",
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": {
+				"kind": "test",
+				"isDefault": true
+			}
+		},
+		{
 			"label": "Build all and Debug",
 			"dependsOn": [
 				"Build user binaries",
