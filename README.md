@@ -1,67 +1,53 @@
-# Sysnap WS22
+# reumelv
+This is a microkernel created at the [University of Bamberg](https://www.uni-bamberg.de/)
+as part of a Bachelor/Master project at the chair for system-oriented programming under the  supervision of Professor [Michael Engel](https://www.multicores.org) and scientific assistant Timo Renk. 
+# Running the project
 
-## Authors
+### Setup
 
-- Michael Engel (michael.engel@uni-bamberg.de)
-- Timo Renk (timo.renk@stud.uni-bamberg.de)
-- Fabian Adam (fabian-david.adam@stud.uni-bamberg.de)
-- Leonhard Kohn (leonhard.kohn@stud.uni-bamberg.de)
-- Tobias Treuheit (tobias-niklas.treuheit@stud.uni-bamberg.de))
-- Max Meidinger (max_meidinger@stud.uni-bamberg.de)
+The simplest way to run the microkernel is to use the [Visual Studio Dev Containers](https://code.visualstudio.com/docs/devcontainers/containers). You only need to have [Docker](https://www.docker.com/) and the [Dev Container Extension](https://github.com/microsoft/vscode-dev-containers) installed. All required tools will be installed using the post-install script ( .devcontainer/postinstall.sh). Since those tools are not shipped directly with the docker image at the moment, the post-install script might take some time to complete.
 
-## Description
+If you do not want to take the docker route, you will need:
+- [Rustup](https://www.rust-lang.org/tools/install) for installing the Rust language itself and for toolchain management
+- [Cargo](https://github.com/rust-lang/cargo) for building and package management
+- The [Qemu](https://www.qemu.org/) emulator, in which the kernel will be run
+- [GDB-Multiarch](https://packages.debian.org/de/sid/gdb-multiarch) for debugging
+- [Cargo-Binutils](https://github.com/rust-embedded/cargo-binutils) for invoking the LLVM tools
+You will also need to:
+- Install the `riscv64gc-unknown-none-elf` target using `rustup target add riscv64gc-unknown-none-elf`
+- Add the `llvm-tools-preview` using `rustup component add llvm-tools-preview`
 
-In this project, we attempt to build a mikrokernel in RUST on a RISCV processor. For this we use the code of Timo Renk as a basis.
+You can also check out the `.devcontainer/postinstall.sh` for the commands used to install those tools in the container.
 
-To run the code, the following is needed:
+On Windows it's not as straightforward to install some of those tools and you may need to use something like [MSYS2](https://www.msys2.org/). Therefore I would recommend either using the dev containers or [WSL](https://learn.microsoft.com/en-us/windows/wsl/install) on Windows.
 
-- gdb-multiarch or riscv-elf-gdb
-- rust with rustup and cargo
-- qemu for riscv
+### Tasks for building and running
 
-## Running the project
 Once all the required tools are installed, the project can be compiled and run using the provided tasks (Shortcut `Strg+Alt+R`).
 
 - Use `Build riscv_rust_os` to build the binaries for the kernel.
 - Use `Build user binaries` to build the binaries for the user processes to be run
 - Finally, use `Debug riscv_rust_os` to fire up qemu with the compiled kernel
 
-Now qemu is running with the given binary! But in orderr to get anything from the emulator, the visual studio debugger needs to connect to the debug server.
+Now qemu is running with the given binary! But to get anything from the emulator, the visual studio debugger needs to connect to the debug server.
 How to connect to the server is already set up in launch.json, so simply pressing `F5` should suffice to connect to the debug server.
 
 To see what instruction is executed at the moment, you can open the `Disassembly View` using the Command Palette (Keyboard Shortcut: `F1`). 
 
-#
-## License
+For convenience, there is also the `Build all and Debug` task, which combines all of the above steps into one. 
 
-This is a University Project.
+# Authors
 
-#
+- Michael Engel (michael.engel@uni-bamberg.de)
+provided invaluable guidance and knowledge about microkernels, operating systems, hardware and so much more.
+- Timo Renk (timo.renk@stud.uni-bamberg.de) provided a very solid foundation of an operating system already running in qemu. This foundation enabled us to dive right into the development of the microkernel, without first having to figure out how to run the kernel in qemu. He also held a series of tutorials on the rust programming language, which was very useful since it was completely new for the rest of us.
+- Fabian Adam (fabian-david.adam@stud.uni-bamberg.de)
+- Leonhard Kohn (leonhard.kohn@stud.uni-bamberg.de)
+- Tobias Treuheit (tobias-niklas.treuheit@stud.uni-bamberg.de)
+- Max Meidinger (max_meidinger@stud.uni-bamberg.de)
 
-#
-
-
-
-# Risc-V Rust OS
-
-Os written in Rust
-
-## Install
-
-- rustup target install riscv64gc-unknown-none-elf
-
-### GDB
-
-gdb-multiarch/ riscv-elf-gdb
-
-#### Windows
-
-msys2: -> pacman -S mingw-w64-x86_64-toolchain
-
-### objcopy
-
-cargo install cargo-binutils
-rustup component add llvm-tools-preview
+# Resources 
+Here are some resources that were either used for the development of the kernel or might be useful for some further development. This list will be expanded as development progresses.
 
 ## RISC-V
 
@@ -78,58 +64,8 @@ rustup component add llvm-tools-preview
 <https://github.com/sgmarz/osblog/blob/master/risc_v/src/lds/virt.lds>
 <https://github.com/skyzh/core-os-riscv/blob/master/kernel/src/uart.rs>
 <https://docs.rust-embedded.org/book/start/qemu.html>
-
-UART
 <https://www.lammertbies.nl/comm/info/serial-uart>
-
-Check riscv reader for paper info for register infos in first two lectures
 
 ## Plic
 
 <https://github.com/riscv/riscv-plic-spec/blob/master/riscv-plic.adoc>
-
-## Questions
-
-- How to avoid race-conditions in UART/ Kernel?
-- What is mtval?
-
-### Answered
-
-- Why align to 16?
-  - `ALIGN(4096) tells the linker to align the current memory location (which is
-       0x8000_0000 + text section + rodata section) to 4096 bytes. This is because our paging
-       system's resolution is 4,096 bytes or 4 KiB.`
-- >ram AT>ram?
-- sdata .sbss
-- use wfi?
-  - Wait for interrupts
-
-## GDB
-
-- info registers
-
-<https://stackoverflow.com/questions/2420813/using-gdb-to-single-step-assembly-code-outside-specified-executable-causes-error>
-
-- gdbtui. Or run gdb with the -tui switch. Or press C-x C-a after entering gdb.
-- layout asm
-- Press C-x s
-- use si ni
-- use gdb-multiarch!
-- x/100x $sp
-- -exec p/x $mepc
-
-readelf -a user_1 | less
-
-## LLDB
-
-Don't use it!
-<https://lldb.llvm.org/use/map.html>
-
-## Tools
-
-### NM
-
-
-
-Check memory layout
-```x86_64-w64-mingw32-gcc-nm riscv_rust_os | sort```
